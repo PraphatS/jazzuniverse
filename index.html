@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>แบบฟอร์มกรอกข้อมูล + ลงลายมือชื่อ → ตัวอย่าง PDF & ส่งอัตโนมัติ</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    #sig-canvas { touch-action: none; }
+    #pdf-layout { width: 794px; }
+    .page { width: 794px; min-height: 1123px; padding: 40px; box-sizing: border-box; background: white; }
+    .field-row { display: grid; grid-template-columns: 180px 1fr; gap: 12px; margin-bottom: 10px; }
+    .label { font-weight: 600; }
+    .box { border: 1px solid #e5e7eb; border-radius: 14px; padding: 18px; }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-900">
+  <div class="max-w-4xl mx-auto p-6">
+    <h1 class="text-2xl md:text-3xl font-bold mb-2">แบบฟอร์มขอเอกสารจาก jazz universe</h1>
+    <p class="mb-6 text-gray-600">กรอกข้อมูล → เซ็นชื่อ → ตรวจทาน → ตัวอย่าง PDF → ยืนยันส่งข้อมูล</p>
+
+    <!-- Stepper -->
+    <div class="flex items-center gap-3 mb-6 text-sm">
+      <div id="step1dot" class="w-7 h-7 grid place-items-center rounded-full bg-blue-600 text-white">1</div>
+      <div>กรอกข้อมูล</div>
+      <div class="flex-1 border-t border-gray-300 mx-2"></div>
+      <div id="step2dot" class="w-7 h-7 grid place-items-center rounded-full bg-gray-300">2</div>
+      <div>ลายมือชื่อ</div>
+      <div class="flex-1 border-t border-gray-300 mx-2"></div>
+      <div id="step3dot" class="w-7 h-7 grid place-items-center rounded-full bg-gray-300">3</div>
+      <div>ตรวจทาน & ส่ง</div>
+    </div>
+
+    <!-- STEP 1: Form -->
+    <section id="step1" class="box bg-white shadow-sm">
+      <h2 class="text-xl font-semibold mb-4">1) กรอกข้อมูลพื้นฐาน</h2>
+      <div class="grid md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium mb-1" for="fullName">ชื่อ–นามสกุล</label>
+          <input id="fullName" class="w-full rounded-lg border px-3 py-2" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1" for="idNumber">เลขบัตรประชาชน 13 หลัก</label>
+          <input id="idNumber" class="w-full rounded-lg border px-3 py-2" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1" for="phone">โทรศัพท์</label>
+          <input id="phone" class="w-full rounded-lg border px-3 py-2" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1" for="email">อีเมล</label>
+          <input id="email" type="email" class="w-full rounded-lg border px-3 py-2" placeholder="e-mail ที่จะใช้สำหรับรับเอกสาร"/>
+        </div>
+        <div class="md:col-span-2">
+          <label class="block text-sm font-medium mb-1" for="address">ที่อยู่</label>
+          <textarea id="address" rows="2" class="w-full rounded-lg border px-3 py-2"></textarea>
+        </div>
+        <div class="md:col-span-2">
+          <label class="block text-sm font-medium mb-1" for="purpose">วัตถุประสงค์/เหตุผลในการยื่นแบบฟอร์ม</label>
+          <textarea id="purpose" rows="3" class="w-full rounded-lg border px-3 py-2" placeholder="เช่น ขออนุญาตใช้วัสดุ/ลงทะเบียนกิจกรรม/ยืนยันข้อมูล"></textarea>
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1" for="date">วันที่</label>
+          <input id="date" type="date" class="w-full rounded-lg border px-3 py-2" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1" for="org">หน่วยงาน/ชั้นเรียน/ฝ่าย</label>
+          <input id="org" class="w-full rounded-lg border px-3 py-2" />
+        </div>
+      </div>
+      <div class="mt-6 flex justify-end gap-2">
+        <button id="toStep2" class="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700">ถัดไป: ลายมือชื่อ</button>
+      </div>
+    </section>
+
+    <!-- STEP 2: Signature -->
+    <section id="step2" class="box bg-white shadow-sm hidden">
+      <h2 class="text-xl font-semibold mb-4">2) ลงลายมือชื่อ</h2>
+      <div class="grid md:grid-cols-2 gap-6">
+        <!-- Draw signature -->
+        <div>
+          <h3 class="font-medium mb-2">วาดลายมือชื่อบนหน้าจอ</h3>
+          <div class="border rounded-lg p-3 bg-gray-50">
+            <canvas id="sig-canvas" class="w-full bg-white rounded border" width="500" height="180"></canvas>
+            <div class="mt-2 flex gap-2">
+              <button id="sig-clear" class="px-3 py-1.5 rounded bg-gray-200 hover:bg-gray-300">ล้าง</button>
+            </div>
+          </div>
+        </div>
+        <!-- Upload signature -->
+        <div>
+          <h3 class="font-medium mb-2">หรือ อัปโหลดภาพลายมือชื่อ (PNG/JPG)</h3>
+          <input id="sig-upload" type="file" accept="image/*" class="block w-full text-sm" />
+          <div class="mt-2 text-xs text-gray-600">คำแนะนำ: เขียนชื่อบนกระดาษขาว ถ่ายรูป/สแกน แล้วอัปโหลด</div>
+          <img id="sig-upload-preview" alt="ตัวอย่างลายมือชื่อ" class="mt-4 max-h-40 rounded hidden" />
+          <div class="mt-2">
+            <button id="sig-upload-clear" class="px-3 py-1.5 rounded bg-gray-200 hover:bg-gray-300">ล้างรูปที่อัปโหลด</button>
+          </div>
+        </div>
+      </div>
+      <div class="mt-6 flex justify-between">
+        <button id="back1" class="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300">ย้อนกลับ</button>
+        <button id="toStep3" class="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700">ถัดไป: ตรวจทาน & ส่ง</button>
+      </div>
+    </section>
+
+    <!-- STEP 3: Review & Send -->
+    <section id="step3" class="box bg-white shadow-sm hidden">
+      <h2 class="text-xl font-semibold mb-2">3) ตรวจทานข้อมูล</h2>
+      <p class="mb-4 text-gray-600">ตรวจสอบข้อมูลด้านล่าง จากนั้นสามารถเปิดดู <b>ตัวอย่าง PDF</b> หรือกด <b>ยืนยันและส่งอีเมล</b></p>
+      <div id="review" class="space-y-2 text-sm"></div>
+      <div class="mt-6 flex flex-wrap gap-2 justify-between">
+        <button id="back2" class="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300">ย้อนกลับ</button>
+        <div class="flex gap-2">
+          <button id="previewPdf" class="px-4 py-2 rounded-lg bg-amber-600 text-white hover:bg-amber-700">แสดงตัวอย่าง PDF</button>
+          <button id="confirmSend" class="px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700">ยืนยันและส่งข้อมูล</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Hidden PDF layout for rendering -->
+    <div id="pdf-layout" class="mx-auto mt-10 hidden">
+      <div class="page">
+        <div class="text-center mb-6">
+          <div class="text-2xl font-bold">แบบฟอร์มยืนยันข้อมูล</div>
+          <div class="text-sm text-gray-600">(สร้างจากระบบกรอกข้อมูลและลงลายมือชื่อ)</div>
+        </div>
+        <div id="pdf-content"></div>
+        <div class="grid grid-cols-2 gap-6 mt-6">
+          <div>
+            <div class="label mb-2">วันที่</div>
+            <div id="pdf-date" class="border rounded p-2 min-h-[40px]"></div>
+          </div>
+          <div>
+            <div class="label mb-2">ลายมือชื่อผู้ยื่นคำขอ</div>
+            <div class="border rounded p-3 h-[140px] grid place-items-center">
+              <img id="pdf-signature" alt="ลายมือชื่อ" class="max-h-[110px] object-contain" />
+            </div>
+          </div>
+        </div>
+        <div class="mt-10 text-xs text-gray-500">หมายเหตุ: เอกสารนี้จัดทำขึ้นจากระบบอิเล็กทรอนิกส์</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
+
+  <script>
+    // === CONFIG ส่งอัตโนมัติ ===
+    const SEND_ENDPOINT = 'https://script.google.com/macros/s/AKfycby-bnx93P1245MVOQySQtyUm5CeV85RfDCA0d9Sx23H2wD4A1K7AoVwny_4uDa4i_4y/exec';
+    const SEND_TO = 'praphatsi@g.swu.ac.th';
+
+    // Stepper helper
+    const stepEls = { s1: document.getElementById('step1'), s2: document.getElementById('step2'), s3: document.getElementById('step3') };
+    const dot1 = document.getElementById('step1dot');
+    const dot2 = document.getElementById('step2dot');
+    const dot3 = document.getElementById('step3dot');
+    function goto(step){
+      stepEls.s1.classList.add('hidden');
+      stepEls.s2.classList.add('hidden');
+      stepEls.s3.classList.add('hidden');
+      if(step===1){ stepEls.s1.classList.remove('hidden'); dot1.className='w-7 h-7 grid place-items-center rounded-full bg-blue-600 text-white'; dot2.className='w-7 h-7 grid place-items-center rounded-full bg-gray-300'; dot3.className='w-7 h-7 grid place-items-center rounded-full bg-gray-300'; }
+      if(step===2){ stepEls.s2.classList.remove('hidden'); dot1.className='w-7 h-7 grid place-items-center rounded-full bg-green-600 text-white'; dot2.className='w-7 h-7 grid place-items-center rounded-full bg-blue-600 text-white'; dot3.className='w-7 h-7 grid place-items-center rounded-full bg-gray-300'; }
+      if(step===3){ stepEls.s3.classList.remove('hidden'); dot1.className='w-7 h-7 grid place-items-center rounded-full bg-green-600 text-white'; dot2.className='w-7 h-7 grid place-items-center rounded-full bg-green-600 text-white'; dot3.className='w-7 h-7 grid place-items-center rounded-full bg-blue-600 text-white'; }
+    }
+
+    // Prefill date with today
+    const dateInput = document.getElementById('date');
+    if(!dateInput.value){
+      const today = new Date();
+      const yyyy = today.getFullYear();
+      const mm = String(today.getMonth()+1).padStart(2,'0');
+      const dd = String(today.getDate()).padStart(2,'0');
+      dateInput.value = `${yyyy}-${mm}-${dd}`;
+    }
+
+    // Step buttons
+    // ===== Validation helpers =====
+    function isEmail(s){ return !!s && s.includes('@') && s.includes('.') && s.indexOf(' ')===-1; }
+    function isAllDigits(s){ return !!s && Array.from(s).every(ch => ch>='0' && ch<='9'); }
+    // Thai national ID: 13 digits with checksum (11 - (sum % 11)) % 10
+    function isValidThaiID(id){
+      if(!isAllDigits(id) || id.length!==13) return false;
+      let sum=0; for(let i=0;i<12;i++){ sum += parseInt(id[i],10) * (13 - i); }
+      const check=(11 - (sum % 11)) % 10;
+      return check === parseInt(id[12],10);
+    }
+    function setInvalid(el){ if(!el) return; el.classList.add('border-red-500'); }
+    function setValid(el){ if(!el) return; el.classList.remove('border-red-500'); }
+    function validateStep1(){
+      const data = collectData();
+      const fields = {
+        fullName: 'ชื่อ–นามสกุล', idNumber: 'เลขบัตรประชาชน', phone: 'โทรศัพท์', email: 'อีเมล',
+        address: 'ที่อยู่', purpose: 'วัตถุประสงค์/เหตุผล', date: 'วันที่', org: 'หน่วยงาน/ชั้นเรียน/ฝ่าย'
+      };
+      const errors=[];
+      Object.keys(fields).forEach(k=> setValid(document.getElementById(k)) );
+      Object.keys(fields).forEach(k=>{ if(!data[k]){ errors.push(`กรุณากรอก ${fields[k]}`); setInvalid(document.getElementById(k)); } });
+      if(data.email && !isEmail(data.email)){ errors.push('รูปแบบอีเมลไม่ถูกต้อง'); setInvalid(document.getElementById('email')); }
+      if(data.idNumber && !isValidThaiID(data.idNumber)){ errors.push('เลขบัตรประชาชนไม่ถูกต้อง (ต้องเป็นตัวเลข 13 หลัก และผ่านการตรวจสอบ)'); setInvalid(document.getElementById('idNumber')); }
+      if(errors.length){ alert(errors.join('\n')); return false; }
+      return true;
+    }
+    document.getElementById('toStep2').onclick=()=>{
+      if(!validateStep1()) return;
+      goto(2);
+      requestAnimationFrame(resizeCanvas);
+    };
+    document.getElementById('back1').onclick=()=>{ goto(1); };
+    document.getElementById('back2').onclick=()=>{ goto(2); };
+
+    // SignaturePad
+    const canvas = document.getElementById('sig-canvas');
+    const sigPad = new SignaturePad(canvas, { minWidth: 0.8, maxWidth: 2.2 });
+
+    // ปรับขนาด canvas ให้คมชัดและตำแหน่งปากกาตรงตามจอ (รองรับจอ DPI สูง)
+    function resizeCanvas(){
+      const ratio = Math.max(window.devicePixelRatio || 1, 1);
+      // ใช้ขนาดจากกล่องจริง ๆ (หลังจาก canvas ถูกแสดงผลแล้ว)
+      const rect = canvas.getBoundingClientRect();
+      // กำหนดขนาดพิกเซลจริงของ canvas ตาม DPR
+      canvas.width = Math.round(rect.width * ratio);
+      canvas.height = Math.round(rect.height * ratio);
+      const ctx = canvas.getContext('2d');
+      ctx.setTransform(ratio, 0, 0, ratio, 0, 0); // scale เฉพาะพิกัด ไม่ทับซ้อน
+      // เคลียร์ลายเซ็น เพราะพิกัดเปลี่ยน (เป็นพฤติกรรมของ SignaturePad)
+      sigPad.clear();
+    }
+
+    // เรียก resize เมื่อเปลี่ยนขนาดหน้าต่าง/หมุนจอ
+    window.addEventListener('resize', ()=>{
+      // ทำเฉพาะเมื่อหน้าลายเซ็นกำลังแสดง เพื่อให้ rect ได้ค่าถูกต้อง
+      if(!document.getElementById('step2').classList.contains('hidden')){
+        resizeCanvas();
+      }
+    });
+
+    // ปุ่มล้างลายเซ็น
+    document.getElementById('sig-clear').onclick=()=>sigPad.clear();
+
+    // Upload signature
+    let uploadedSigDataURL=null;
+    document.getElementById('sig-upload').addEventListener('change',e=>{
+      const file=e.target.files[0]; if(!file) return;
+      const reader=new FileReader();
+      reader.onload=()=>{ uploadedSigDataURL=reader.result; const p=document.getElementById('sig-upload-preview'); p.src=uploadedSigDataURL; p.classList.remove('hidden'); };
+      reader.readAsDataURL(file);
+    });
+
+    // ปุ่มล้างรูปที่อัปโหลด
+    const clearUploadBtn = document.getElementById('sig-upload-clear');
+    if (clearUploadBtn) {
+      clearUploadBtn.onclick = () => {
+        uploadedSigDataURL = null;
+        const p = document.getElementById('sig-upload-preview');
+        p.src = '';
+        p.classList.add('hidden');
+        const up = document.getElementById('sig-upload');
+        up.value = '';
+      };
+    }
+
+    function collectData(){
+      return {
+        fullName:document.getElementById('fullName').value.trim(),
+        idNumber:document.getElementById('idNumber').value.trim(),
+        phone:document.getElementById('phone').value.trim(),
+        email:document.getElementById('email').value.trim(),
+        address:document.getElementById('address').value.trim(),
+        purpose:document.getElementById('purpose').value.trim(),
+        date:document.getElementById('date').value,
+        org:document.getElementById('org').value.trim(),
+      };
+    }
+
+    document.getElementById('toStep3').onclick=()=>{
+      if(sigPad.isEmpty() && !uploadedSigDataURL){ alert('กรุณาวาดลายมือชื่อหรืออัปโหลดรูปก่อนดำเนินการต่อ'); return; }
+      const data=collectData();
+      const review=document.getElementById('review');
+      review.innerHTML='';
+      const rows=[
+        ['ชื่อ–นามสกุล', data.fullName],
+        ['เลขประจำตัว', data.idNumber],
+        ['โทรศัพท์', data.phone],
+        ['อีเมล', data.email],
+        ['ที่อยู่', data.address],
+        ['หน่วยงาน/ชั้นเรียน/ฝ่าย', data.org],
+        ['วันที่', data.date],
+        ['วัตถุประสงค์/เหตุผล', data.purpose],
+        ['ลายมือชื่อ', (!sigPad.isEmpty()) ? 'วาดบนหน้าจอ' : (uploadedSigDataURL ? 'อัปโหลดภาพลายมือชื่อ' : '— ยังไม่ได้แนบ —')]
+      ];
+      rows.forEach(([k,v])=>{
+        const div=document.createElement('div');
+        div.className='grid md:grid-cols-3 gap-2 p-2 border rounded';
+        div.innerHTML=`<div class="font-medium">${k}</div><div class="md:col-span-2 whitespace-pre-wrap">${(v||'').toString()}</div>`;
+        review.appendChild(div);
+      });
+      goto(3);
+    };
+
+    // Prepare PDF DOM with current data and signature image
+    async function preparePdfDom(){
+      const data = collectData();
+      const pdfContent = document.getElementById('pdf-content');
+      pdfContent.innerHTML = '';
+      const pairs=[
+        ['ชื่อ–นามสกุล', data.fullName],
+        ['เลขประจำตัว', data.idNumber],
+        ['โทรศัพท์', data.phone],
+        ['อีเมล', data.email],
+        ['ที่อยู่', data.address],
+        ['หน่วยงาน/ชั้นเรียน/ฝ่าย', data.org],
+        ['วัตถุประสงค์/เหตุผล', data.purpose]
+      ];
+      pairs.forEach(([k,v])=>{
+        const row=document.createElement('div'); row.className='field-row';
+        row.innerHTML=`<div class="label">${k}</div><div>${v||'-'}</div>`; pdfContent.appendChild(row);
+      });
+      document.getElementById('pdf-date').textContent = data.date || '-';
+
+      const sig=document.getElementById('pdf-signature');
+      let sigUrl=null;
+      if(!sigPad.isEmpty()) sigUrl = sigPad.toDataURL('image/png');
+      else if(uploadedSigDataURL) sigUrl = uploadedSigDataURL;
+      if(sigUrl){ sig.src=sigUrl; sig.classList.remove('hidden'); } else { sig.src=''; sig.classList.add('hidden'); }
+      return document.querySelector('#pdf-layout .page');
+    }
+
+    // PDF preview (tab ใหม่)
+    document.getElementById('previewPdf').onclick=async()=>{
+      const node=await preparePdfDom();
+      const pdfWrap=document.getElementById('pdf-layout');
+      const wasHidden=pdfWrap.classList.contains('hidden');
+      if(wasHidden){ pdfWrap.classList.remove('hidden'); pdfWrap.style.position='fixed'; pdfWrap.style.left='-9999px'; pdfWrap.style.top='0'; }
+      const canvas=await html2canvas(node,{scale:2});
+      const imgData=canvas.toDataURL('image/jpeg',1.0);
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF('p','pt','a4');
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const imgWidth = pageWidth;
+      const imgHeight = canvas.height * (imgWidth / canvas.width);
+      pdf.addImage(imgData,'JPEG',0,0,imgWidth,imgHeight);
+      const blobUrl = pdf.output('bloburl');
+      window.open(blobUrl, '_blank');
+      if(wasHidden){ pdfWrap.classList.add('hidden'); pdfWrap.style.position=''; pdfWrap.style.left=''; pdfWrap.style.top=''; }
+    };
+
+    // ส่งอัตโนมัติ
+    function setSending(isSending){ const btn=document.getElementById('confirmSend'); if(!btn) return; btn.disabled=isSending; btn.textContent=isSending?'กำลังส่ง…':'ยืนยันและส่งอีเมล'; }
+    async function buildPdfBase64(){
+      const node=await preparePdfDom();
+      const pdfWrap=document.getElementById('pdf-layout');
+      const wasHidden=pdfWrap.classList.contains('hidden');
+      if(wasHidden){ pdfWrap.classList.remove('hidden'); pdfWrap.style.position='fixed'; pdfWrap.style.left='-9999px'; pdfWrap.style.top='0'; }
+      const canvas=await html2canvas(node,{scale:2});
+      const imgData=canvas.toDataURL('image/jpeg',1.0);
+      const { jsPDF } = window.jspdf; const pdf=new jsPDF('p','pt','a4');
+      const pageWidth=pdf.internal.pageSize.getWidth(); const imgWidth=pageWidth; const imgHeight=canvas.height*(imgWidth/canvas.width);
+      pdf.addImage(imgData,'JPEG',0,0,imgWidth,imgHeight);
+      const dataUri=pdf.output('datauristring'); const base64=dataUri.split(',')[1];
+      if(wasHidden){ pdfWrap.classList.add('hidden'); pdfWrap.style.position=''; pdfWrap.style.left=''; pdfWrap.style.top=''; }
+      return base64;
+    }
+
+    async function sendAutomatic(){
+      try{
+        if(!SEND_ENDPOINT || SEND_ENDPOINT.startsWith('YOUR_')){ alert('ยังไม่ได้ตั้งค่า ENDPOINT สำหรับส่งอีเมลอัตโนมัติ'); return; }
+        setSending(true);
+        const data=collectData();
+        const pdfBase64=await buildPdfBase64();
+        const payload={
+          to: SEND_TO,
+          subject: 'ยืนยันการส่งแบบฟอร์มจากระบบ',
+          message: [
+            'ยืนยันการส่งแบบฟอร์ม',
+            `ชื่อ–นามสกุล: ${data.fullName}`,
+            `เลขประจำตัว: ${data.idNumber}`,
+            `โทรศัพท์: ${data.phone}`,
+            `อีเมลติดต่อ: ${data.email}`,
+            `ที่อยู่: ${data.address}`,
+            `หน่วยงาน/ชั้นเรียน: ${data.org}`,
+            `วันที่: ${data.date}`,
+            'วัตถุประสงค์:',
+            (data.purpose||'-')
+          ].join('\n'),
+          filename: `แบบฟอร์ม_${new Date().toISOString().slice(0,10)}.pdf`,
+          pdfBase64
+        };
+        const form=new URLSearchParams();
+        form.append('to', payload.to);
+        form.append('subject', payload.subject);
+        form.append('message', payload.message);
+        form.append('filename', payload.filename);
+        form.append('pdfBase64', payload.pdfBase64);
+
+        try{
+          const res=await fetch(SEND_ENDPOINT,{ method:'POST', headers:{ 'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8' }, body: form.toString() });
+          if(!res.ok){ const t=await res.text(); throw new Error(t||('HTTP '+res.status)); }
+          await res.json().catch(()=>({ok:true}));
+          alert('ส่งข้อมูลสำเร็จ');
+        }catch(err1){
+          console.warn('ส่งแบบปกติไม่สำเร็จ ลอง no-cors',err1);
+          await fetch(SEND_ENDPOINT,{ method:'POST', mode:'no-cors', headers:{ 'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8' }, body: form.toString() });
+          alert('ส่งคำขอแล้ว — เมื่อผ่านการอนุมัติระบบจะส่งกลับทางอีเมลของท่าน');
+        }
+      }catch(err){ console.error(err); alert('ส่งอีเมลไม่สำเร็จ: '+(err&&err.message?err.message:err)); }
+      finally{ setSending(false); }
+    }
+
+    document.getElementById('confirmSend').onclick=async()=>{ await sendAutomatic(); };
+  </script>
+</body>
+</html>
