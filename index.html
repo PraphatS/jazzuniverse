@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>แบบฟอร์มขอใช้ประโยชน์ผลงานวิจัย – กรอก/เซ็น/พรีวิว/ส่ง</title>
+
+  <!-- Tailwind CDN (สะดวก; โปรด build จริงถ้าจะ production ยาวๆ) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- pdf-lib + fontkit สำหรับฝังฟอนต์ .ttf -->
+  <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+  <script src="https://unpkg.com/@pdf-lib/fontkit/dist/fontkit.umd.min.js"></script>
+
+  <!-- SignaturePad สำหรับวาดลายเซ็น -->
+  <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
+
+  <style>
+    body { font-family: system-ui, -apple-system, "Segoe UI", Tahoma, sans-serif; }
+    #sig-canvas { touch-action: none; }
+    .box { border: 1px solid #e5e7eb; border-radius: 14px; padding: 18px; }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-900">
+  <div class="max-w-4xl mx-auto p-6">
+    <h1 class="text-2xl md:text-3xl font-bold mb-2">แบบฟอร์มแสดงความประสงค์นำผลงานวิจัยไปใช้ประโยชน์</h1>
+    <p class="mb-6 text-gray-600">กรอกข้อมูล → เซ็นชื่อ → ตรวจทาน → ตัวอย่าง PDF → ยืนยันส่งข้อมูล</p>
+
+    <!-- Stepper -->
+    <div class="flex items-center gap-3 mb-6 text-sm">
+      <div id="step1dot" class="w-7 h-7 grid place-items-center rounded-full bg-blue-600 text-white">1</div>
+      <div>กรอกข้อมูล</div>
+      <div class="flex-1 border-t border-gray-300 mx-2"></div>
+      <div id="step2dot" class="w-7 h-7 grid place-items-center rounded-full bg-gray-300">2</div>
+      <div>ลายมือชื่อ</div>
+      <div class="flex-1 border-t border-gray-300 mx-2"></div>
+      <div id="step3dot" class="w-7 h-7 grid place-items-center rounded-full bg-gray-300">3</div>
+      <div>ตรวจทาน & ส่ง</div>
+    </div>
+
+    <!-- STEP 1 -->
+    <section id="step1" class="box bg-white shadow-sm">
+      <h2 class="text-xl font-semibold mb-4">1) กรอกข้อมูลพื้นฐาน</h2>
+      <div class="grid md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium mb-1" for="firstName">ชื่อ</label>
+          <input id="firstName" class="w-full rounded-lg border px-3 py-2" placeholder="เช่น ปรภัสร์" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1" for="lastName">สกุล</label>
+          <input id="lastName" class="w-full rounded-lg border px-3 py-2" placeholder="เช่น ศิลปกิจจานนท์" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1" for="position">ตำแหน่ง</label>
+          <input id="position" class="w-full rounded-lg border px-3 py-2" placeholder="เช่น อาจารย์/นักวิจัย" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1" for="org">หน่วยงาน</label>
+          <input id="org" class="w-full rounded-lg border px-3 py-2" placeholder="เช่น มหาวิทยาลัย... / สถาบัน..." />
+        </div>
+        <div class="md:col-span-2">
+          <label class="block text-sm font-medium mb-1" for="purpose">ความประสงค์ (โครงการเสร็จสิ้นแล้วในด้านใด)</label>
+          <textarea id="purpose" rows="3" class="w-full rounded-lg border px-3 py-2" placeholder="เช่น เชิงนโยบาย/เชิงพาณิชย์/สังคม/สิ่งแวดล้อม ฯลฯ"></textarea>
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1" for="phone">เบอร์โทรศัพท์ (เก็บเพื่อการติดต่อ)</label>
+          <input id="phone" class="w-full rounded-lg border px-3 py-2" placeholder="0812345678" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1" for="email">อีเมล (เก็บเพื่อการติดต่อ)</label>
+          <input id="email" type="email" class="w-full rounded-lg border px-3 py-2" placeholder="name@example.com" />
+        </div>
+      </div>
+      <div class="mt-6 flex justify-end gap-2">
+        <button id="toStep2" class="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700">ถัดไป: ลายมือชื่อ</button>
+      </div>
+    </section>
+
+    <!-- STEP 2 -->
+    <section id="step2" class="box bg-white shadow-sm hidden">
+      <h2 class="text-xl font-semibold mb-4">2) ลงลายมือชื่อ</h2>
+      <div class="grid md:grid-cols-2 gap-6">
+        <div>
+          <h3 class="font-medium mb-2">วาดลายมือชื่อบนหน้าจอ</h3>
+          <div class="border rounded-lg p-3 bg-gray-50">
+            <canvas id="sig-canvas" class="w-full bg-white rounded border" width="500" height="180"></canvas>
+            <div class="mt-2 flex gap-2">
+              <button id="sig-clear" class="px-3 py-1.5 rounded bg-gray-200 hover:bg-gray-300">ล้าง</button>
+            </div>
+          </div>
+        </div>
+        <div>
+          <h3 class="font-medium mb-2">หรือ อัปโหลดภาพลายมือชื่อ (PNG/JPG)</h3>
+          <input id="sig-upload" type="file" accept="image/*" class="block w-full text-sm" />
+          <img id="sig-upload-preview" alt="ตัวอย่างลายมือชื่อ" class="mt-4 max-h-40 rounded hidden" />
+          <div class="mt-2">
+            <button id="sig-upload-clear" class="px-3 py-1.5 rounded bg-gray-200 hover:bg-gray-300">ล้างรูปที่อัปโหลด</button>
+          </div>
+        </div>
+      </div>
+      <div class="mt-6 flex justify-between">
+        <button id="back1" class="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300">ย้อนกลับ</button>
+        <button id="toStep3" class="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700">ถัดไป: ตรวจทาน & ส่ง</button>
+      </div>
+    </section>
+
+    <!-- STEP 3 -->
+    <section id="step3" class="box bg-white shadow-sm hidden">
+      <h2 class="text-xl font-semibold mb-2">3) ตรวจทานข้อมูล</h2>
+      <p class="mb-4 text-gray-600">ตรวจสอบข้อมูลด้านล่าง จากนั้นสามารถเปิดดู <b>ตัวอย่าง PDF</b> หรือกด <b>ยืนยันและส่งอีเมล</b></p>
+      <div id="review" class="space-y-2 text-sm"></div>
+      <div class="mt-6 flex flex-wrap gap-2 justify-between">
+        <button id="back2" class="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300">ย้อนกลับ</button>
+        <div class="flex gap-2">
+          <button id="previewPdf" class="px-4 py-2 rounded-lg bg-amber-600 text-white hover:bg-amber-700">แสดงตัวอย่าง PDF</button>
+          <button id="confirmSend" class="px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700">ยืนยันและส่งข้อมูล</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    // ========= CONFIG =========
+    const SEND_ENDPOINT = 'YOUR_DEPLOYED_GAS_URL_HERE'; // ใส่ URL Web App ของ GAS
+    const SEND_TO = 'praphatsi@g.swu.ac.th';
+
+    // ========= Utils =========
+    function formatThaiDate(date){
+      const months=["มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน","กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"];
+      return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()+543}`;
+    }
+    function isEmail(s){ return /^\S+@\S+\.\S+$/.test(s); }
+    function setInvalid(el){ if(el) el.classList.add('border-red-500'); }
+    function setValid(el){ if(el) el.classList.remove('border-red-500'); }
+
+    // ========= Stepper =========
+    const stepEls = { s1: document.getElementById('step1'), s2: document.getElementById('step2'), s3: document.getElementById('step3') };
+    const dot1 = document.getElementById('step1dot');
+    const dot2 = document.getElementById('step2dot');
+    const dot3 = document.getElementById('step3dot');
+    function goto(step){
+      stepEls.s1.classList.add('hidden'); stepEls.s2.classList.add('hidden'); stepEls.s3.classList.add('hidden');
+      if(step===1){ stepEls.s1.classList.remove('hidden'); dot1.className='w-7 h-7 grid place-items-center rounded-full bg-blue-600 text-white'; dot2.className='w-7 h-7 grid place-items-center rounded-full bg-gray-300'; dot3.className='w-7 h-7 grid place-items-center rounded-full bg-gray-300'; }
+      if(step===2){ stepEls.s2.classList.remove('hidden'); dot1.className='w-7 h-7 grid place-items-center rounded-full bg-green-600 text-white'; dot2.className='w-7 h-7 grid place-items-center rounded-full bg-blue-600 text-white'; dot3.className='w-7 h-7 grid place-items-center rounded-full bg-gray-300'; }
+      if(step===3){ stepEls.s3.classList.remove('hidden'); dot1.className='w-7 h-7 grid place-items-center rounded-full bg-green-600 text-white'; dot2.className='w-7 h-7 grid place-items-center rounded-full bg-green-600 text-white'; dot3.className='w-7 h-7 grid place-items-center rounded-full bg-blue-600 text-white'; }
+    }
+
+    // ========= SignaturePad =========
+    const canvas = document.getElementById('sig-canvas');
+    const sigPad = new SignaturePad(canvas, { minWidth: 0.8, maxWidth: 2.2 });
+    function resizeCanvas(){
+      const ratio = Math.max(window.devicePixelRatio || 1, 1);
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = Math.round(rect.width * ratio);
+      canvas.height = Math.round(rect.height * ratio);
+      const ctx = canvas.getContext('2d');
+      ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+      sigPad.clear();
+    }
+    window.addEventListener('resize', ()=>{ if(!document.getElementById('step2').classList.contains('hidden')) resizeCanvas(); });
+    document.getElementById('sig-clear').onclick=()=> sigPad.clear();
+
+    // อัปโหลดลายเซ็น (รูปภาพ)
+    let uploadedSigDataURL=null;
+    document.getElementById('sig-upload').addEventListener('change',e=>{
+      const f=e.target.files[0]; if(!f) return;
+      const r=new FileReader();
+      r.onload=()=>{ uploadedSigDataURL=r.result; const p=document.getElementById('sig-upload-preview'); p.src=uploadedSigDataURL; p.classList.remove('hidden'); };
+      r.readAsDataURL(f);
+    });
+    document.getElementById('sig-upload-clear').onclick=()=>{
+      uploadedSigDataURL=null;
+      const p=document.getElementById('sig-upload-preview'); p.src=''; p.classList.add('hidden');
+      document.getElementById('sig-upload').value='';
+    };
+
+    // ========= Data & Validate =========
+    function collectData(){
+      return {
+        firstName:document.getElementById('firstName').value.trim(),
+        lastName:document.getElementById('lastName').value.trim(),
+        position:document.getElementById('position').value.trim(),
+        org:document.getElementById('org').value.trim(),
+        purpose:document.getElementById('purpose').value.trim(),
+        phone:document.getElementById('phone').value.trim(),
+        email:document.getElementById('email').value.trim(),
+        dateThai: formatThaiDate(new Date())
+      };
+    }
+    function validateStep1(){
+      const data = collectData();
+      const fields = {
+        firstName:'ชื่อ', lastName:'สกุล', position:'ตำแหน่ง', org:'หน่วยงาน',
+        purpose:'ความประสงค์', phone:'เบอร์โทรศัพท์', email:'อีเมล'
+      };
+      const errors=[];
+      Object.keys(fields).forEach(k=> setValid(document.getElementById(k)) );
+      Object.keys(fields).forEach(k=>{ if(!data[k]){ errors.push(`กรุณากรอก ${fields[k]}`); setInvalid(document.getElementById(k)); } });
+      if(data.email && !isEmail(data.email)){ errors.push('รูปแบบอีเมลไม่ถูกต้อง'); setInvalid(document.getElementById('email')); }
+      if(errors.length){ alert(errors.join('\n')); return false; }
+      return true;
+    }
+
+    // ========= Step buttons =========
+    document.getElementById('toStep2').onclick=()=>{ if(!validateStep1()) return; goto(2); requestAnimationFrame(resizeCanvas); };
+    document.getElementById('back1').onclick=()=> goto(1);
+    document.getElementById('back2').onclick=()=> goto(2);
+    document.getElementById('toStep3').onclick=()=>{
+      if(sigPad.isEmpty() && !uploadedSigDataURL){ alert('กรุณาวาดลายมือชื่อหรืออัปโหลดรูปก่อนดำเนินการต่อ'); return; }
+      const data=collectData();
+      const rows=[
+        ['ชื่อ', data.firstName],
+        ['สกุล', data.lastName],
+        ['ตำแหน่ง', data.position],
+        ['หน่วยงาน', data.org],
+        ['วันที่', data.dateThai],
+        ['ความประสงค์', data.purpose],
+        ['ลายมือชื่อ', (!sigPad.isEmpty()) ? 'วาดบนหน้าจอ' : (uploadedSigDataURL ? 'อัปโหลดภาพลายมือชื่อ' : '— ยังไม่ได้แนบ —')],
+        ['เบอร์โทรศัพท์ (ไม่ลงใน PDF)', data.phone],
+        ['อีเมล (ไม่ลงใน PDF)', data.email],
+      ];
+      const review=document.getElementById('review'); review.innerHTML='';
+      rows.forEach(([k,v])=>{
+        const div=document.createElement('div');
+        div.className='grid md:grid-cols-3 gap-2 p-2 border rounded';
+        div.innerHTML=`<div class="font-medium">${k}</div><div class="md:col-span-2 whitespace-pre-wrap">${(v||'').toString()}</div>`;
+        review.appendChild(div);
+      });
+      goto(3);
+    };
+
+    // ========= pdf-lib helpers =========
+    async function fetchArrayBuffer(url){
+      const res = await fetch(url);
+      if(!res.ok) throw new Error('โหลดไฟล์ไม่ได้: '+url);
+      return await res.arrayBuffer();
+    }
+    function drawWrappedText(page, text, font, fontSize, x, startY, maxWidth, lineGap){
+      if(!text) return;
+      const words=text.split(/\s+/); let line=''; let y=startY;
+      for(let i=0;i<words.length;i++){
+        const test=line? line+' '+words[i] : words[i];
+        const w=font.widthOfTextAtSize(test, fontSize);
+        if(w>maxWidth && line){ page.drawText(line,{x,y,size:fontSize,font}); line=words[i]; y-=lineGap; }
+        else { line=test; }
+      }
+      if(line){ page.drawText(line,{x,y,size:fontSize,font}); }
+    }
+    async function maybeEmbedSignature(pdfDoc){
+      if(!sigPad.isEmpty()){
+        const pngData = sigPad.toDataURL('image/png');
+        const bytes = await (await fetch(pngData)).arrayBuffer();
+        return await pdfDoc.embedPng(bytes);
+      }
+      if(uploadedSigDataURL){
+        const buf = await (await fetch(uploadedSigDataURL)).arrayBuffer();
+        try { return await pdfDoc.embedPng(buf); } catch { return await pdfDoc.embedJpg(buf); }
+      }
+      return null;
+    }
+
+    // ========= generatePdfBytes: เติมข้อมูลลง assets/template.pdf =========
+    async function generatePdfBytes(data){
+  const templateBytes = await fetchArrayBuffer('/assets/template.pdf');
+  const fontBytes     = await fetchArrayBuffer('/assets/THSarabunNew.ttf');
+
+  // ✅ โหลดก่อน แล้วค่อย register กับ "อินสแตนซ์"
+  const pdfDoc = await PDFLib.PDFDocument.load(templateBytes, { ignoreEncryption: true });
+  pdfDoc.registerFontkit(fontkit);
+
+  const thFont = await pdfDoc.embedFont(fontBytes, { subset: true });
+
+  const pages = pdfDoc.getPages();
+  const page1 = pages[0];
+  const { width:W, height:H } = page1.getSize();
+
+  const POS = {
+    name:     { x: 130, y: H - 300 },
+    position: { x: 130, y: H - 330 },
+    org:      { x: 130, y: H - 360 },
+    purpose:  { x: 120, y: H - 470, width: W - 160, lineGap: 22 },
+    date:     { x: 120, y: 120 },
+    sign:     { x: 360, y: 140, w: 180 },
+    signP2:   { x: 340, y: 180, w: 180 },
+  };
+  const FONT = { size: 16, small: 14 };
+
+  page1.drawText(`${data.firstName} ${data.lastName}`, { x: POS.name.x, y: POS.name.y, size: FONT.size, font: thFont });
+  page1.drawText(data.position, { x: POS.position.x, y: POS.position.y, size: FONT.size, font: thFont });
+  page1.drawText(data.org, { x: POS.org.x, y: POS.org.y, size: FONT.size, font: thFont });
+  drawWrappedText(page1, data.purpose, thFont, FONT.size, POS.purpose.x, POS.purpose.y, POS.purpose.width, POS.purpose.lineGap);
+  page1.drawText(data.dateThai, { x: POS.date.x, y: POS.date.y, size: FONT.size, font: thFont });
+
+  const sigImg = await maybeEmbedSignature(pdfDoc);
+  if(sigImg){
+    const hasPage2 = pages.length > 1;
+    const targetPage = hasPage2 ? pages[1] : page1;
+    const targetPos  = hasPage2 ? POS.signP2 : POS.sign;
+    const w = targetPos.w;
+    const h = (w / sigImg.width) * sigImg.height;
+    targetPage.drawImage(sigImg, { x: targetPos.x, y: targetPos.y, width: w, height: h });
+    targetPage.drawText(`${data.firstName} ${data.lastName}`, { x: targetPos.x + 10, y: targetPos.y - 18, size: FONT.small, font: thFont });
+  }
+
+  return await pdfDoc.save();
+}
+
+
+    // ========= Preview (จากไฟล์จริง) =========
+    document.getElementById('previewPdf').onclick=async()=>{
+      try{
+        const data = collectData();
+        const pdfBytes = await generatePdfBytes(data);
+        const blob = new Blob([pdfBytes], { type:'application/pdf' });
+        const url = URL.createObjectURL(blob);
+        window.open(url, '_blank');
+      }catch(err){ console.error(err); alert('สร้างตัวอย่าง PDF ไม่สำเร็จ: '+err.message); }
+    };
+
+    // ========= ส่งอัตโนมัติ =========
+    function setSending(isSending){ const btn=document.getElementById('confirmSend'); if(!btn) return; btn.disabled=isSending; btn.textContent=isSending?'กำลังส่ง…':'ยืนยันและส่งข้อมูล'; }
+    async function buildPdfBase64(){
+      const data = collectData();
+      const pdfBytes = await generatePdfBytes(data);
+      let binary=''; const bytes=new Uint8Array(pdfBytes);
+      for(let i=0;i<bytes.length;i++){ binary += String.fromCharCode(bytes[i]); }
+      return btoa(binary);
+    }
+    async function sendAutomatic(){
+      try{
+        if(!SEND_ENDPOINT || SEND_ENDPOINT.startsWith('YOUR_')){ alert('ยังไม่ได้ตั้งค่า ENDPOINT (GAS URL)'); return; }
+        setSending(true);
+        const data=collectData();
+        const pdfBase64=await buildPdfBase64();
+
+        const payload = {
+          to: SEND_TO,
+          subject: 'ยืนยันการส่งแบบฟอร์มจากระบบ',
+          message: [
+            'ยืนยันการส่งแบบฟอร์ม',
+            `ชื่อ: ${data.firstName}`,
+            `สกุล: ${data.lastName}`,
+            `ตำแหน่ง: ${data.position}`,
+            `หน่วยงาน: ${data.org}`,
+            `วันที่: ${data.dateThai}`,
+            'ความประสงค์:',
+            (data.purpose||'-'),
+            '',
+            '(ข้อมูลติดต่อ – ไม่พิมพ์ลงในเอกสาร)',
+            `โทรศัพท์: ${data.phone}`,
+            `อีเมล: ${data.email}`
+          ].join('\n'),
+            filename: `แบบฟอร์ม_${new Date().toISOString().slice(0,10)}.pdf`,
+            pdfBase64
+        };
+
+        const form=new URLSearchParams();
+        Object.entries(payload).forEach(([k,v])=> form.append(k, v));
+
+        const res=await fetch(SEND_ENDPOINT,{
+          method:'POST',
+          headers:{ 'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8' },
+          body: form.toString()
+        });
+
+        if(!res.ok){ const t=await res.text(); throw new Error(t||('HTTP '+res.status)); }
+        await res.json().catch(()=>({ok:true}));
+        alert('ส่งข้อมูลสำเร็จ');
+      }catch(err){
+        console.error(err);
+        alert('ส่งอีเมลไม่สำเร็จ: '+(err?.message||err));
+      }finally{
+        setSending(false);
+      }
+    }
+    document.getElementById('confirmSend').onclick=sendAutomatic;
+  </script>
+</body>
+</html>
