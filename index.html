@@ -48,7 +48,7 @@
         </div>
         <div>
           <label class="block text-sm font-medium mb-1" for="fullName">ชื่อ–สกุล</label>
-          <input id="fullName" class="w-full rounded-lg border px-3 py-2" placeholder="เช่น ปรภัสร์ ศิลปกิจจานนท์" />
+          <input id="fullName" class="w-full rounded-lg border px-3 py-2" placeholder="" />
         </div>
         <div>
           <label class="block text-sm font-medium mb-1" for="position">ตำแหน่ง</label>
@@ -59,15 +59,15 @@
           <input id="org" class="w-full rounded-lg border px-3 py-2" placeholder="เช่น มหาวิทยาลัย... / สถาบัน..." />
         </div>
         <div class="md:col-span-2">
-          <label class="block text-sm font-medium mb-1" for="purpose">ความประสงค์ (โครงการเสร็จสิ้นแล้วในด้านใด)</label>
-          <textarea id="purpose" rows="3" class="w-full rounded-lg border px-3 py-2" placeholder="เช่น เชิงนโยบาย/เชิงพาณิชย์/สังคม/สิ่งแวดล้อม ฯลฯ"></textarea>
+          <label class="block text-sm font-medium mb-1" for="purpose">ความประสงค์ (นำโครงการไปใช้ในด้านใด)</label>
+          <textarea id="purpose" rows="3" class="w-full rounded-lg border px-3 py-2" placeholder="เช่น งานวิจัย/เชิงนโยบาย/เชิงพาณิชย์/สังคม/สิ่งแวดล้อม ฯลฯ"></textarea>
         </div>
         <div>
           <label class="block text-sm font-medium mb-1" for="phone">เบอร์โทรศัพท์ (เก็บเพื่อการติดต่อ)</label>
           <input id="phone" class="w-full rounded-lg border px-3 py-2" placeholder="0812345678" />
         </div>
         <div>
-          <label class="block text-sm font-medium mb-1" for="email">อีเมล (เก็บเพื่อการติดต่อ)</label>
+          <label class="block text-sm font-medium mb-1" for="email">อีเมล (ใช้สำหรับตอบกลับเอกสาร)</label>
           <input id="email" type="email" class="w-full rounded-lg border px-3 py-2" placeholder="name@example.com" />
         </div>
       </div>
@@ -366,10 +366,10 @@ const FIXED_TO = 'tao.praphat@gmail.com';           // ผู้รับถา�
         position: { x: 120, y: 664 },                              // “ตำแหน่ง …”
         org:      { x: 340, y: 664 },                              // “หน่วยงาน …” (ต่อท้ายบรรทัดเดียวกัน)
         purpose:  { x: 120, yTop: 503, width: 360, lineGap: 20, yBottom: 430 }, // กล่องความประสงค์
-        date:     { x: 360, y: 270 },                              // “วันที่ …”
+        date:     { x: 360, y: 275 },                              // “วันที่ …”
         // ลายมือชื่อ (ถ้ามีหน้า 2 จะไปหน้า 2 อัตโนมัติ)
-        sign:       { x: 340, y: 330, w: 160 },
-        signName:   { x: 360, y: 300 },
+        sign:       { x: 340, y: 345, w: 160 },
+        signName:   { x: 360, y: 310 },
         signP2:     { x: 340, y: 180, w: 180 },
         signNameP2: { x: 360, y: 160 }
       };
@@ -513,7 +513,7 @@ const FIXED_TO = 'tao.praphat@gmail.com';           // ผู้รับถา�
       'ความประสงค์:',
       (data.purpose || '-'),
       '',
-      '(ข้อมูลติดต่อ – ไม่พิมพ์ลงในเอกสาร)',
+      '(ข้อมูลติดต่อ)',
       `โทรศัพท์: ${data.phone}`,
       `อีเมล: ${data.email}`,
       '',
@@ -554,6 +554,7 @@ const FIXED_TO = 'tao.praphat@gmail.com';           // ผู้รับถา�
   </script>
 </body>
 </html>
+
 
 
 
