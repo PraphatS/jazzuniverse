@@ -39,52 +39,44 @@
     </div>
 
     <!-- STEP 1 -->
-    <section id="step1" class="box bg-white shadow-sm">
-      <h2 class="text-xl font-semibold mb-4">1) กรอกข้อมูลพื้นฐาน</h2>
-      <div class="grid md:grid-cols-2 gap-4">
-        <div>
-          <label class="block text-sm font-medium mb-1" for="prefix">คำนำหน้า</label>
-          <select id="prefix" class="w-full rounded-lg border px-3 py-2">
-            <option value="">— เลือก —</option>
-            <option>นาย</option>
-            <option>นาง</option>
-            <option>นางสาว</option>
-            <option>ดร.</option>
-            <option>ผศ.</option>
-            <option>รศ.</option>
-            <option>ศ.</option>
-            <option>อื่น ๆ</option>
-          </select>
-        </div>
-        <div>
-          <label class="block text-sm font-medium mb-1" for="fullName">ชื่อ–สกุล</label>
-          <input id="fullName" class="w-full rounded-lg border px-3 py-2" placeholder="เช่น ปรภัสร์ ศิลปกิจจานนท์" />
-        </div>
-        <div>
-          <label class="block text-sm font-medium mb-1" for="position">ตำแหน่ง</label>
-          <input id="position" class="w-full rounded-lg border px-3 py-2" placeholder="เช่น อาจารย์/นักวิจัย" />
-        </div>
-        <div>
-          <label class="block text-sm font-medium mb-1" for="org">หน่วยงาน</label>
-          <input id="org" class="w-full rounded-lg border px-3 py-2" placeholder="เช่น มหาวิทยาลัย... / สถาบัน..." />
-        </div>
-        <div class="md:col-span-2">
-          <label class="block text-sm font-medium mb-1" for="purpose">ความประสงค์ (โครงการเสร็จสิ้นแล้วในด้านใด)</label>
-          <textarea id="purpose" rows="3" class="w-full rounded-lg border px-3 py-2" placeholder="เช่น เชิงนโยบาย/เชิงพาณิชย์/สังคม/สิ่งแวดล้อม ฯลฯ"></textarea>
-        </div>
-        <div>
-          <label class="block text-sm font-medium mb-1" for="phone">เบอร์โทรศัพท์ (เก็บเพื่อการติดต่อ)</label>
-          <input id="phone" class="w-full rounded-lg border px-3 py-2" placeholder="0812345678" />
-        </div>
-        <div>
-          <label class="block text-sm font-medium mb-1" for="email">อีเมล (เก็บเพื่อการติดต่อ)</label>
-          <input id="email" type="email" class="w-full rounded-lg border px-3 py-2" placeholder="name@example.com" />
-        </div>
-      </div>
-      <div class="mt-6 flex justify-end gap-2">
-        <button id="toStep2" class="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700">ถัดไป: ลายมือชื่อ</button>
-      </div>
-    </section>
+  <!-- STEP 1 -->
+<section id="step1" class="box bg-white shadow-sm">
+  <h2 class="text-xl font-semibold mb-4">1) กรอกข้อมูลพื้นฐาน</h2>
+  <div class="grid md:grid-cols-2 gap-4">
+    <div>
+      <label class="block text-sm font-medium mb-1" for="prefix">คำนำหน้า</label>
+      <input id="prefix" class="w-full rounded-lg border px-3 py-2" placeholder="เช่น นาย, นาง, ดร., ศ." />
+    </div>
+    <div>
+      <label class="block text-sm font-medium mb-1" for="fullName">ชื่อ–สกุล</label>
+      <input id="fullName" class="w-full rounded-lg border px-3 py-2" placeholder="เช่น ปรภัสร์ ศิลปกิจจานนท์" />
+    </div>
+    <div>
+      <label class="block text-sm font-medium mb-1" for="position">ตำแหน่ง</label>
+      <input id="position" class="w-full rounded-lg border px-3 py-2" placeholder="เช่น อาจารย์/นักวิจัย" />
+    </div>
+    <div>
+      <label class="block text-sm font-medium mb-1" for="org">หน่วยงาน</label>
+      <input id="org" class="w-full rounded-lg border px-3 py-2" placeholder="เช่น มหาวิทยาลัย... / สถาบัน..." />
+    </div>
+    <div class="md:col-span-2">
+      <label class="block text-sm font-medium mb-1" for="purpose">ความประสงค์ (โครงการเสร็จสิ้นแล้วในด้านใด)</label>
+      <textarea id="purpose" rows="3" class="w-full rounded-lg border px-3 py-2" placeholder="เช่น เชิงนโยบาย/เชิงพาณิชย์/สังคม/สิ่งแวดล้อม ฯลฯ"></textarea>
+    </div>
+    <div>
+      <label class="block text-sm font-medium mb-1" for="phone">เบอร์โทรศัพท์ (เก็บเพื่อการติดต่อ)</label>
+      <input id="phone" class="w-full rounded-lg border px-3 py-2" placeholder="0812345678" />
+    </div>
+    <div>
+      <label class="block text-sm font-medium mb-1" for="email">อีเมล (เก็บเพื่อการติดต่อ)</label>
+      <input id="email" type="email" class="w-full rounded-lg border px-3 py-2" placeholder="name@example.com" />
+    </div>
+  </div>
+  <div class="mt-6 flex justify-end gap-2">
+    <button id="toStep2" class="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700">ถัดไป: ลายมือชื่อ</button>
+  </div>
+</section>
+
 
     <!-- STEP 2 -->
     <section id="step2" class="box bg-white shadow-sm hidden">
@@ -185,7 +177,7 @@
     };
 
     // ========= Data & Validate =========
-   function collectData(){
+  function collectData(){
   return {
     prefix: document.getElementById('prefix').value.trim(),
     fullName: document.getElementById('fullName').value.trim(),
@@ -216,6 +208,7 @@ function validateStep1(){
   if(errors.length){ alert(errors.join('\n')); return false; }
   return true;
 }
+
 
     // ========= Step buttons =========
     document.getElementById('toStep2').onclick=()=>{ if(!validateStep1()) return; goto(2); requestAnimationFrame(resizeCanvas); };
@@ -403,4 +396,5 @@ function validateStep1(){
   </script>
 </body>
 </html>
+
 
