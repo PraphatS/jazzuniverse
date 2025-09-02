@@ -185,31 +185,37 @@
     };
 
     // ========= Data & Validate =========
-    function collectData(){
-      return {
-        prefix:document.getElementById('prefix').value.trim(),
-        fullName:document.getElementById('fullName').value.trim(),
-        position:document.getElementById('position').value.trim(),
-        org:document.getElementById('org').value.trim(),
-        purpose:document.getElementById('purpose').value.trim(),
-        phone:document.getElementById('phone').value.trim(),
-        email:document.getElementById('email').value.trim(),
-        dateThai: formatThaiDate(new Date())
-      };
-    }
-    function validateStep1(){
-      const data = collectData();
-      const fields = {
-        prefix:'คำนำหน้า', fullName:'ชื่อ–สกุล', position:'ตำแหน่ง', org:'หน่วยงาน',
-        purpose:'ความประสงค์', phone:'เบอร์โทรศัพท์', email:'อีเมล'
-      };
-      const errors=[];
-      Object.keys(fields).forEach(k=> setValid(document.getElementById(k)) );
-      Object.keys(fields).forEach(k=>{ if(!data[k]){ errors.push(`กรุณากรอก ${fields[k]}`); setInvalid(document.getElementById(k)); } });
-      if(data.email && !isEmail(data.email)){ errors.push('รูปแบบอีเมลไม่ถูกต้อง'); setInvalid(document.getElementById('email')); }
-      if(errors.length){ alert(errors.join('\n')); return false; }
-      return true;
-    }
+   function collectData(){
+  return {
+    prefix: document.getElementById('prefix').value.trim(),
+    fullName: document.getElementById('fullName').value.trim(),
+    position: document.getElementById('position').value.trim(),
+    org: document.getElementById('org').value.trim(),
+    purpose: document.getElementById('purpose').value.trim(),
+    phone: document.getElementById('phone').value.trim(),
+    email: document.getElementById('email').value.trim(),
+    dateThai: formatThaiDate(new Date())
+  };
+}
+
+function validateStep1(){
+  const data = collectData();
+  const fields = {
+    prefix:'คำนำหน้า', fullName:'ชื่อ–สกุล', position:'ตำแหน่ง', org:'หน่วยงาน',
+    purpose:'ความประสงค์', phone:'เบอร์โทรศัพท์', email:'อีเมล'
+  };
+  const errors=[];
+  Object.keys(fields).forEach(k=> setValid(document.getElementById(k)) );
+  Object.keys(fields).forEach(k=>{
+    if(!data[k]){ errors.push(`กรุณากรอก ${fields[k]}`); setInvalid(document.getElementById(k)); }
+  });
+  if(data.email && !isEmail(data.email)){
+    errors.push('รูปแบบอีเมลไม่ถูกต้อง');
+    setInvalid(document.getElementById('email'));
+  }
+  if(errors.length){ alert(errors.join('\n')); return false; }
+  return true;
+}
 
     // ========= Step buttons =========
     document.getElementById('toStep2').onclick=()=>{ if(!validateStep1()) return; goto(2); requestAnimationFrame(resizeCanvas); };
@@ -397,3 +403,4 @@
   </script>
 </body>
 </html>
+
