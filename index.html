@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>แบบฟอร์มขอใช้ประโยชน์ผลงานวิจัย – กรอก/เซ็น/พรีวิว/ส่ง</title>
 
-  <!-- Tailwind CDN (ใช้งานสะดวก; ถ้าจะ production ยาว ๆ แนะนำ build) -->
+  <!-- Tailwind (สะดวก; ถ้า production ระยะยาว แนะนำ build) -->
   <script src="https://cdn.tailwindcss.com"></script>
 
   <!-- pdf-lib + fontkit สำหรับฝังฟอนต์ .ttf -->
@@ -39,44 +39,42 @@
     </div>
 
     <!-- STEP 1 -->
-  <!-- STEP 1 -->
-<section id="step1" class="box bg-white shadow-sm">
-  <h2 class="text-xl font-semibold mb-4">1) กรอกข้อมูลพื้นฐาน</h2>
-  <div class="grid md:grid-cols-2 gap-4">
-    <div>
-      <label class="block text-sm font-medium mb-1" for="prefix">คำนำหน้า</label>
-      <input id="prefix" class="w-full rounded-lg border px-3 py-2" placeholder="เช่น นาย, นาง, ดร., ศ." />
-    </div>
-    <div>
-      <label class="block text-sm font-medium mb-1" for="fullName">ชื่อ–สกุล</label>
-      <input id="fullName" class="w-full rounded-lg border px-3 py-2" placeholder="เช่น ปรภัสร์ ศิลปกิจจานนท์" />
-    </div>
-    <div>
-      <label class="block text-sm font-medium mb-1" for="position">ตำแหน่ง</label>
-      <input id="position" class="w-full rounded-lg border px-3 py-2" placeholder="เช่น อาจารย์/นักวิจัย" />
-    </div>
-    <div>
-      <label class="block text-sm font-medium mb-1" for="org">หน่วยงาน</label>
-      <input id="org" class="w-full rounded-lg border px-3 py-2" placeholder="เช่น มหาวิทยาลัย... / สถาบัน..." />
-    </div>
-    <div class="md:col-span-2">
-      <label class="block text-sm font-medium mb-1" for="purpose">ความประสงค์ (โครงการเสร็จสิ้นแล้วในด้านใด)</label>
-      <textarea id="purpose" rows="3" class="w-full rounded-lg border px-3 py-2" placeholder="เช่น เชิงนโยบาย/เชิงพาณิชย์/สังคม/สิ่งแวดล้อม ฯลฯ"></textarea>
-    </div>
-    <div>
-      <label class="block text-sm font-medium mb-1" for="phone">เบอร์โทรศัพท์ (เก็บเพื่อการติดต่อ)</label>
-      <input id="phone" class="w-full rounded-lg border px-3 py-2" placeholder="0812345678" />
-    </div>
-    <div>
-      <label class="block text-sm font-medium mb-1" for="email">อีเมล (เก็บเพื่อการติดต่อ)</label>
-      <input id="email" type="email" class="w-full rounded-lg border px-3 py-2" placeholder="name@example.com" />
-    </div>
-  </div>
-  <div class="mt-6 flex justify-end gap-2">
-    <button id="toStep2" class="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700">ถัดไป: ลายมือชื่อ</button>
-  </div>
-</section>
-
+    <section id="step1" class="box bg-white shadow-sm">
+      <h2 class="text-xl font-semibold mb-4">1) กรอกข้อมูลพื้นฐาน</h2>
+      <div class="grid md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium mb-1" for="prefix">คำนำหน้า</label>
+          <input id="prefix" class="w-full rounded-lg border px-3 py-2" placeholder="เช่น นาย, นาง, นางสาว, ดร., ศ." />
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1" for="fullName">ชื่อ–สกุล</label>
+          <input id="fullName" class="w-full rounded-lg border px-3 py-2" placeholder="เช่น ปรภัสร์ ศิลปกิจจานนท์" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1" for="position">ตำแหน่ง</label>
+          <input id="position" class="w-full rounded-lg border px-3 py-2" placeholder="เช่น อาจารย์/นักวิจัย" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1" for="org">หน่วยงาน</label>
+          <input id="org" class="w-full rounded-lg border px-3 py-2" placeholder="เช่น มหาวิทยาลัย... / สถาบัน..." />
+        </div>
+        <div class="md:col-span-2">
+          <label class="block text-sm font-medium mb-1" for="purpose">ความประสงค์ (โครงการเสร็จสิ้นแล้วในด้านใด)</label>
+          <textarea id="purpose" rows="3" class="w-full rounded-lg border px-3 py-2" placeholder="เช่น เชิงนโยบาย/เชิงพาณิชย์/สังคม/สิ่งแวดล้อม ฯลฯ"></textarea>
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1" for="phone">เบอร์โทรศัพท์ (เก็บเพื่อการติดต่อ)</label>
+          <input id="phone" class="w-full rounded-lg border px-3 py-2" placeholder="0812345678" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1" for="email">อีเมล (เก็บเพื่อการติดต่อ)</label>
+          <input id="email" type="email" class="w-full rounded-lg border px-3 py-2" placeholder="name@example.com" />
+        </div>
+      </div>
+      <div class="mt-6 flex justify-end gap-2">
+        <button id="toStep2" class="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700">ถัดไป: ลายมือชื่อ</button>
+      </div>
+    </section>
 
     <!-- STEP 2 -->
     <section id="step2" class="box bg-white shadow-sm hidden">
@@ -143,8 +141,29 @@
     function goto(step){
       stepEls.s1.classList.add('hidden'); stepEls.s2.classList.add('hidden'); stepEls.s3.classList.add('hidden');
       if(step===1){ stepEls.s1.classList.remove('hidden'); dot1.className='w-7 h-7 grid place-items-center rounded-full bg-blue-600 text-white'; dot2.className='w-7 h-7 grid place-items-center rounded-full bg-gray-300'; dot3.className='w-7 h-7 grid place-items-center rounded-full bg-gray-300'; }
-      if(step===2){ stepEls.s2.classList.remove('hidden'); dot1.className='w-7 h-7 grid place-items-center rounded-full bg-green-600 text-white'; dot2.className='w-7 h-7 grid place-items-center rounded-full bg-blue-600 text-white'; dot3.className='w-7 h-7 grid place-items-center rounded-full bg-gray-300'; }
+      if(step===2){ step Els.s2?.classList.remove('hidden'); dot1.className='w-7 h-7 grid place-items-center rounded-full bg-green-600 text-white'; dot2.className='w-7 h-7 grid place-items-center rounded-full bg-blue-600 text-white'; dot3.className='w-7 h-7 grid place-items-center rounded-full bg-gray-300'; }
       if(step===3){ stepEls.s3.classList.remove('hidden'); dot1.className='w-7 h-7 grid place-items-center rounded-full bg-green-600 text-white'; dot2.className='w-7 h-7 grid place-items-center rounded-full bg-green-600 text-white'; dot3.className='w-7 h-7 grid place-items-center rounded-full bg-blue-600 text-white'; }
+    }
+
+    // แก้พิมพ์ผิดเล็กน้อย (บางเบราว์เซอร์ไม่ชอบ optional chaining ตรงนี้)
+    function goto(step){
+      stepEls.s1.classList.add('hidden'); stepEls.s2.classList.add('hidden'); stepEls.s3.classList.add('hidden');
+      if(step===1){
+        stepEls.s1.classList.remove('hidden');
+        dot1.className='w-7 h-7 grid place-items-center rounded-full bg-blue-600 text-white';
+        dot2.className='w-7 h-7 grid place-items-center rounded-full bg-gray-300';
+        dot3.className='w-7 h-7 grid place-items-center rounded-full bg-gray-300';
+      }else if(step===2){
+        stepEls.s2.classList.remove('hidden');
+        dot1.className='w-7 h-7 grid place-items-center rounded-full bg-green-600 text-white';
+        dot2.className='w-7 h-7 grid place-items-center rounded-full bg-blue-600 text-white';
+        dot3.className='w-7 h-7 grid place-items-center rounded-full bg-gray-300';
+      }else if(step===3){
+        stepEls.s3.classList.remove('hidden');
+        dot1.className='w-7 h-7 grid place-items-center rounded-full bg-green-600 text-white';
+        dot2.className='w-7 h-7 grid place-items-center rounded-full bg-green-600 text-white';
+        dot3.className='w-7 h-7 grid place-items-center rounded-full bg-blue-600 text-white';
+      }
     }
 
     // ========= SignaturePad =========
@@ -177,43 +196,38 @@
     };
 
     // ========= Data & Validate =========
-  function collectData(){
-  return {
-    prefix: document.getElementById('prefix').value.trim(),
-    fullName: document.getElementById('fullName').value.trim(),
-    position: document.getElementById('position').value.trim(),
-    org: document.getElementById('org').value.trim(),
-    purpose: document.getElementById('purpose').value.trim(),
-    phone: document.getElementById('phone').value.trim(),
-    email: document.getElementById('email').value.trim(),
-    dateThai: formatThaiDate(new Date())
-  };
-}
+    function collectData(){
+      return {
+        prefix:document.getElementById('prefix').value.trim(),
+        fullName:document.getElementById('fullName').value.trim(),
+        position:document.getElementById('position').value.trim(),
+        org:document.getElementById('org').value.trim(),
+        purpose:document.getElementById('purpose').value.trim(),
+        phone:document.getElementById('phone').value.trim(),
+        email:document.getElementById('email').value.trim(),
+        dateThai: formatThaiDate(new Date())
+      };
+    }
+    function isEmail(s){ return /^\S+@\S+\.\S+$/.test(s); }
+    function validateStep1(){
+      const data = collectData();
+      const fields = {
+        prefix:'คำนำหน้า', fullName:'ชื่อ–สกุล', position:'ตำแหน่ง', org:'หน่วยงาน',
+        purpose:'ความประสงค์', phone:'เบอร์โทรศัพท์', email:'อีเมล'
+      };
+      const errors=[];
+      Object.keys(fields).forEach(k=> setValid(document.getElementById(k)) );
+      Object.keys(fields).forEach(k=>{ if(!data[k]){ errors.push(`กรุณากรอก ${fields[k]}`); setInvalid(document.getElementById(k)); } });
+      if(data.email && !isEmail(data.email)){ errors.push('รูปแบบอีเมลไม่ถูกต้อง'); setInvalid(document.getElementById('email')); }
+      if(errors.length){ alert(errors.join('\n')); return false; }
+      return true;
+    }
 
-function validateStep1(){
-  const data = collectData();
-  const fields = {
-    prefix:'คำนำหน้า', fullName:'ชื่อ–สกุล', position:'ตำแหน่ง', org:'หน่วยงาน',
-    purpose:'ความประสงค์', phone:'เบอร์โทรศัพท์', email:'อีเมล'
-  };
-  const errors=[];
-  Object.keys(fields).forEach(k=> setValid(document.getElementById(k)) );
-  Object.keys(fields).forEach(k=>{
-    if(!data[k]){ errors.push(`กรุณากรอก ${fields[k]}`); setInvalid(document.getElementById(k)); }
-  });
-  if(data.email && !isEmail(data.email)){
-    errors.push('รูปแบบอีเมลไม่ถูกต้อง');
-    setInvalid(document.getElementById('email'));
-  }
-  if(errors.length){ alert(errors.join('\n')); return false; }
-  return true;
-}
-
-
-    // ========= Step buttons =========
+    // ========= Review / Step buttons =========
     document.getElementById('toStep2').onclick=()=>{ if(!validateStep1()) return; goto(2); requestAnimationFrame(resizeCanvas); };
     document.getElementById('back1').onclick=()=> goto(1);
     document.getElementById('back2').onclick=()=> goto(2);
+
     document.getElementById('toStep3').onclick=()=>{
       if(sigPad.isEmpty() && !uploadedSigDataURL){ alert('กรุณาวาดลายมือชื่อหรืออัปโหลดรูปก่อนดำเนินการต่อ'); return; }
       const data=collectData();
@@ -238,23 +252,70 @@ function validateStep1(){
       goto(3);
     };
 
-    // ========= pdf-lib helpers =========
+    // ========= Helpers: โหลดไฟล์ & พิมพ์ข้อความแบบไทย (ตัดบรรทัด) =========
     async function fetchArrayBuffer(url){
       const res = await fetch(url);
       if(!res.ok) throw new Error('โหลดไฟล์ไม่ได้: '+url);
       return await res.arrayBuffer();
     }
-    function drawWrappedText(page, text, font, fontSize, x, startY, maxWidth, lineGap){
-      if(!text) return;
-      const words=text.split(/\s+/); let line=''; let y=startY;
-      for(let i=0;i<words.length;i++){
-        const test=line? line+' '+words[i] : words[i];
-        const w=font.widthOfTextAtSize(test, fontSize);
-        if(w>maxWidth && line){ page.drawText(line,{x,y,size:fontSize,font}); line=words[i]; y-=lineGap; }
-        else { line=test; }
+
+    // Thai-friendly wrapped text within a bounding box
+    function drawWrappedTextBox(page, text, font, fontSize, x, yTop, boxWidth, lineGap, yBottom) {
+      if (!text) return yTop;
+      const paras = String(text).replace(/\r\n?/g, '\n').split('\n');
+      let y = yTop;
+      const widthOf = (s) => font.widthOfTextAtSize(s, fontSize);
+
+      for (const para of paras) {
+        if (para.trim() === '') { y -= lineGap; if (y < yBottom) break; continue; }
+
+        const hasSpaces = /\s/.test(para);
+        const tokens = hasSpaces ? para.split(/\s+/) : Array.from(para);
+        let line = '';
+
+        for (let i = 0; i < tokens.length; i++) {
+          const tryLine = line ? (hasSpaces ? line + ' ' + tokens[i] : line + tokens[i]) : tokens[i];
+          if (widthOf(tryLine) <= boxWidth) {
+            line = tryLine;
+          } else {
+            if (line) {
+              page.drawText(line, { x, y, size: fontSize, font });
+              y -= lineGap; if (y < yBottom) return y;
+              line = tokens[i];
+              while (widthOf(line) > boxWidth && line.length > 1) {
+                let cut = line.length - 1;
+                while (cut > 0 && widthOf(line.slice(0, cut)) > boxWidth) cut--;
+                if (cut <= 0) break;
+                const head = line.slice(0, cut);
+                const tail = line.slice(cut);
+                page.drawText(head, { x, y, size: fontSize, font });
+                y -= lineGap; if (y < yBottom) return y;
+                line = tail;
+              }
+            } else {
+              let chunk = tokens[i];
+              while (widthOf(chunk) > boxWidth && chunk.length > 1) {
+                let cut = chunk.length - 1;
+                while (cut > 0 && widthOf(chunk.slice(0, cut)) > boxWidth) cut--;
+                const head = chunk.slice(0, cut);
+                const tail = chunk.slice(cut);
+                page.drawText(head, { x, y, size: fontSize, font });
+                y -= lineGap; if (y < yBottom) return y;
+                chunk = tail;
+              }
+              line = chunk;
+            }
+          }
+        }
+
+        if (line) {
+          page.drawText(line, { x, y, size: fontSize, font });
+          y -= lineGap; if (y < yBottom) return y;
+        }
       }
-      if(line){ page.drawText(line,{x,y,size:fontSize,font}); }
+      return y;
     }
+
     async function maybeEmbedSignature(pdfDoc){
       if(!sigPad.isEmpty()){
         const pngData = sigPad.toDataURL('image/png');
@@ -274,7 +335,7 @@ function validateStep1(){
       const fontBytes     = await fetchArrayBuffer('./assets/THSarabunNew.ttf');
 
       const pdfDoc = await PDFLib.PDFDocument.load(templateBytes, { ignoreEncryption: true });
-      pdfDoc.registerFontkit(fontkit); // <- ต้อง register กับอินสแตนซ์
+      pdfDoc.registerFontkit(fontkit); // register กับอินสแตนซ์
 
       const thFont = await pdfDoc.embedFont(fontBytes, { subset: true });
 
@@ -282,30 +343,42 @@ function validateStep1(){
       const page1 = pages[0];
       const { width:W, height:H } = page1.getSize();
 
-      // === พิกัด (pt) — ปรับให้ตรงแบบฟอร์มของคุณได้ที่นี่ ===
+      // === พิกัด (หน่วย pt) — ปรับให้ตรงกับ template ของคุณได้ที่นี่ ===
       const POS = {
-        // ช่องในหน้า 1
-        name:     { x: 120, y: 705 },                            // “ข้าพเจ้า …”
-        position: { x: 120, y: 675 },                            // “ตำแหน่ง …”
-        org:      { x: 260, y: 675 },                            // “หน่วยงาน …” (ต่อท้ายบรรทัดเดียวกัน)
-        purpose:  { x: 120, y: 515, width: 360, lineGap: 22 },   // ย่อหน้าความประสงค์
-        date:     { x: 120, y: 160 },                            // “วันที่ …”
-        // ลายเซ็น (ถ้าเอกสารมีหน้า 2 จะไปวางหน้า 2 อัตโนมัติ)
-        sign:     { x: 340, y: 200, w: 160 },
-        signName: { x: 360, y: 180 },                            // ชื่อกำกับลายเซ็น
-        signP2:   { x: 340, y: 180, w: 180 },                    // สำหรับหน้า 2 (ถ้ามี)
-        signNameP2:{ x: 360, y: 160 }
+        name:     { x: 120, y: 705 },                              // “ข้าพเจ้า …”
+        position: { x: 120, y: 675 },                              // “ตำแหน่ง …”
+        org:      { x: 260, y: 675 },                              // “หน่วยงาน …” (ต่อท้ายบรรทัดเดียวกัน)
+        purpose:  { x: 120, yTop: 515, width: 360, lineGap: 22, yBottom: 430 }, // กล่องความประสงค์ (จำกัดขอบล่าง กันล้น)
+        date:     { x: 120, y: 160 },                              // “วันที่ …”
+        // ลายมือชื่อ (ถ้ามีหน้า 2 จะไปหน้า 2 อัตโนมัติ)
+        sign:       { x: 340, y: 200, w: 160 },
+        signName:   { x: 360, y: 180 },
+        signP2:     { x: 340, y: 180, w: 180 },
+        signNameP2: { x: 360, y: 160 }
       };
       const FONT = { size: 16, small: 14 };
 
-      // — ชื่อเต็มสำหรับพิมพ์ลงเอกสาร
       const displayFullName = (data.prefix ? data.prefix + ' ' : '') + data.fullName;
 
       // — ข้อความหลัก
       page1.drawText(displayFullName, { x: POS.name.x, y: POS.name.y, size: FONT.size, font: thFont });
       page1.drawText(data.position,   { x: POS.position.x, y: POS.position.y, size: FONT.size, font: thFont });
       page1.drawText(data.org,        { x: POS.org.x, y: POS.org.y, size: FONT.size, font: thFont });
-      drawWrappedText(page1, data.purpose, thFont, FONT.size, POS.purpose.x, POS.purpose.y, POS.purpose.width, POS.purpose.lineGap);
+
+      // — ความประสงค์ (ตัดบรรทัดอัตโนมัติ + จำกัดกล่อง)
+      drawWrappedTextBox(
+        page1,
+        data.purpose,
+        thFont,
+        FONT.size,
+        POS.purpose.x,
+        POS.purpose.yTop,
+        POS.purpose.width,
+        POS.purpose.lineGap,
+        POS.purpose.yBottom
+      );
+
+      // — วันที่
       page1.drawText(data.dateThai,   { x: POS.date.x, y: POS.date.y, size: FONT.size, font: thFont });
 
       // — ลายมือชื่อ
@@ -396,5 +469,3 @@ function validateStep1(){
   </script>
 </body>
 </html>
-
-
