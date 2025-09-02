@@ -133,38 +133,39 @@
     function setInvalid(el){ if(el) el.classList.add('border-red-500'); }
     function setValid(el){ if(el) el.classList.remove('border-red-500'); }
 
-    // ========= Stepper =========
-    const stepEls = { s1: document.getElementById('step1'), s2: document.getElementById('step2'), s3: document.getElementById('step3') };
-    const dot1 = document.getElementById('step1dot');
-    const dot2 = document.getElementById('step2dot');
-    const dot3 = document.getElementById('step3dot');
-    function goto(step){
-      stepEls.s1.classList.add('hidden'); stepEls.s2.classList.add('hidden'); stepEls.s3.classList.add('hidden');
-      if(step===1){ stepEls.s1.classList.remove('hidden'); dot1.className='w-7 h-7 grid place-items-center rounded-full bg-blue-600 text-white'; dot2.className='w-7 h-7 grid place-items-center rounded-full bg-gray-300'; dot3.className='w-7 h-7 grid place-items-center rounded-full bg-gray-300'; }
-      if(step===2){ step Els.s2?.classList.remove('hidden'); dot1.className='w-7 h-7 grid place-items-center rounded-full bg-green-600 text-white'; dot2.className='w-7 h-7 grid place-items-center rounded-full bg-blue-600 text-white'; dot3.className='w-7 h-7 grid place-items-center rounded-full bg-gray-300'; }
-      if(step===3){ stepEls.s3.classList.remove('hidden'); dot1.className='w-7 h-7 grid place-items-center rounded-full bg-green-600 text-white'; dot2.className='w-7 h-7 grid place-items-center rounded-full bg-green-600 text-white'; dot3.className='w-7 h-7 grid place-items-center rounded-full bg-blue-600 text-white'; }
-    }
+   // ========= Stepper =========
+const stepEls = {
+  s1: document.getElementById('step1'),
+  s2: document.getElementById('step2'),
+  s3: document.getElementById('step3')
+};
+const dot1 = document.getElementById('step1dot');
+const dot2 = document.getElementById('step2dot');
+const dot3 = document.getElementById('step3dot');
 
-    // แก้พิมพ์ผิดเล็กน้อย (บางเบราว์เซอร์ไม่ชอบ optional chaining ตรงนี้)
-    function goto(step){
-      stepEls.s1.classList.add('hidden'); stepEls.s2.classList.add('hidden'); stepEls.s3.classList.add('hidden');
-      if(step===1){
-        stepEls.s1.classList.remove('hidden');
-        dot1.className='w-7 h-7 grid place-items-center rounded-full bg-blue-600 text-white';
-        dot2.className='w-7 h-7 grid place-items-center rounded-full bg-gray-300';
-        dot3.className='w-7 h-7 grid place-items-center rounded-full bg-gray-300';
-      }else if(step===2){
-        stepEls.s2.classList.remove('hidden');
-        dot1.className='w-7 h-7 grid place-items-center rounded-full bg-green-600 text-white';
-        dot2.className='w-7 h-7 grid place-items-center rounded-full bg-blue-600 text-white';
-        dot3.className='w-7 h-7 grid place-items-center rounded-full bg-gray-300';
-      }else if(step===3){
-        stepEls.s3.classList.remove('hidden');
-        dot1.className='w-7 h-7 grid place-items-center rounded-full bg-green-600 text-white';
-        dot2.className='w-7 h-7 grid place-items-center rounded-full bg-green-600 text-white';
-        dot3.className='w-7 h-7 grid place-items-center rounded-full bg-blue-600 text-white';
-      }
-    }
+function goto(step){
+  // ซ่อนทุกสเต็ปก่อน
+  stepEls.s1.classList.add('hidden');
+  stepEls.s2.classList.add('hidden');
+  stepEls.s3.classList.add('hidden');
+
+  if (step === 1) {
+    stepEls.s1.classList.remove('hidden');
+    dot1.className = 'w-7 h-7 grid place-items-center rounded-full bg-blue-600 text-white';
+    dot2.className = 'w-7 h-7 grid place-items-center rounded-full bg-gray-300';
+    dot3.className = 'w-7 h-7 grid place-items-center rounded-full bg-gray-300';
+  } else if (step === 2) {
+    stepEls.s2.classList.remove('hidden');
+    dot1.className = 'w-7 h-7 grid place-items-center rounded-full bg-green-600 text-white';
+    dot2.className = 'w-7 h-7 grid place-items-center rounded-full bg-blue-600 text-white';
+    dot3.className = 'w-7 h-7 grid place-items-center rounded-full bg-gray-300';
+  } else if (step === 3) {
+    stepEls.s3.classList.remove('hidden');
+    dot1.className = 'w-7 h-7 grid place-items-center rounded-full bg-green-600 text-white';
+    dot2.className = 'w-7 h-7 grid place-items-center rounded-full bg-green-600 text-white';
+    dot3.className = 'w-7 h-7 grid place-items-center rounded-full bg-blue-600 text-white';
+  }
+}
 
     // ========= SignaturePad =========
     const canvas = document.getElementById('sig-canvas');
@@ -469,3 +470,4 @@
   </script>
 </body>
 </html>
+
