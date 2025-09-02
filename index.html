@@ -129,8 +129,10 @@
 
   <script>
     // ========= CONFIG =========
-    const SEND_ENDPOINT = 'YOUR_DEPLOYED_GAS_URL_HERE'; // ใส่ URL Web App ของ GAS
-    const SEND_TO = 'praphatsi@g.swu.ac.th';
+    // ========= CONFIG =========
+const SEND_ENDPOINT = 'https://script.google.com/macros/s/AKfycby-bnx93P1245MVOQySQtyUm5CeV85RfDCA0d9Sx23H2wD4A1K7AoVwny_4uDa4i_4y/exec'; // ใส่ URL Web App ของ GAS
+const FIXED_TO = 'tao.praphat@gmail.com';           // ผู้รับถาวร
+
 
     // ========= Utils =========
     function formatThaiDate(date){
@@ -477,54 +479,79 @@
       for(let i=0;i<bytes.length;i++){ binary += String.fromCharCode(bytes[i]); }
       return btoa(binary);
     }
-    async function sendAutomatic(){
-      try{
-        if(!SEND_ENDPOINT || SEND_ENDPOINT.startsWith('YOUR_')){ alert('ยังไม่ได้ตั้งค่า ENDPOINT (GAS URL)'); return; }
-        setSending(true);
-        const data=collectData();
-        const pdfBase64=await buildPdfBase64();
-
-        const payload = {
-          to: SEND_TO,
-          subject: 'ยืนยันการส่งแบบฟอร์มจากระบบ',
-          message: [
-            'ยืนยันการส่งแบบฟอร์ม',
-            `คำนำหน้า: ${data.prefix}`,
-            `ชื่อ–สกุล: ${data.fullName}`,
-            `ตำแหน่ง: ${data.position}`,
-            `หน่วยงาน: ${data.org}`,
-            `วันที่: ${data.dateThai}`,
-            'ความประสงค์:',
-            (data.purpose||'-'),
-            '',
-            '(ข้อมูลติดต่อ – ไม่พิมพ์ลงในเอกสาร)',
-            `โทรศัพท์: ${data.phone}`,
-            `อีเมล: ${data.email}`
-          ].join('\n'),
-          filename: `แบบฟอร์ม_${new Date().toISOString().slice(0,10)}.pdf`,
-          pdfBase64
-        };
-
-        const form=new URLSearchParams();
-        Object.entries(payload).forEach(([k,v])=> form.append(k, v));
-
-        const res=await fetch(SEND_ENDPOINT,{
-          method:'POST',
-          headers:{ 'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8' },
-          body: form.toString()
-        });
-
-        if(!res.ok){ const t=await res.text(); throw new Error(t||('HTTP '+res.status)); }
-        await res.json().catch(()=>({ok:true}));
-        alert('ส่งข้อมูลสำเร็จ');
-      }catch(err){
-        console.error(err);
-        alert('ส่งอีเมลไม่สำเร็จ: '+(err?.message||err));
-      }finally{
-        setSending(false);
-      }
+   async function sendAutomatic(){
+  try{
+    if(!SEND_ENDPOINT || SEND_ENDPOINT.startsWith('YOUR_')){
+      alert('ยังไม่ได้ตั้งค่า ENDPOINT (GAS URL)');
+      return;
     }
+    setSending(true);
+
+    const data = collectData();
+
+    // รวมผู้รับ: ถาวร + อีเมลที่กรอก
+    const recipients = [FIXED_TO, data.email].filter(Boolean).join(',');
+
+    // ใช้ไฟล์พรีวิวล่าสุดถ้ามี เพื่อลดการเรนเดอร์ซ้ำ
+    const pdfBase64 = await (async ()=>{
+      let pdfBytes = currentPreviewBytes;
+      if (!pdfBytes) pdfBytes = await generatePdfBytes(data);
+      let binary=''; const bytes=new Uint8Array(pdfBytes);
+      for(let i=0;i<bytes.length;i++){ binary += String.fromCharCode(bytes[i]); }
+      return btoa(binary);
+    })();
+
+    const subject = 'แบบฟอร์มแสดงความประสงค์นำผลงานวิจัยไปใช้ประโยชน์';
+
+    const message = [
+      'ยืนยันการส่งแบบฟอร์ม',
+      `คำนำหน้า: ${data.prefix}`,
+      `ชื่อ–สกุล: ${data.fullName}`,
+      `ตำแหน่ง: ${data.position}`,
+      `หน่วยงาน: ${data.org}`,
+      `วันที่: ${data.dateThai}`,
+      'ความประสงค์:',
+      (data.purpose || '-'),
+      '',
+      '(ข้อมูลติดต่อ – ไม่พิมพ์ลงในเอกสาร)',
+      `โทรศัพท์: ${data.phone}`,
+      `อีเมล: ${data.email}`,
+      '',
+      'หมายเหตุ:',
+      'หลังจากการพิจารณาแบบฟอร์ม ทางโครงการจะดำเนินการส่งผลงานวิจัยให้ทางอีเมลนี้ในภายหลัง'
+    ].join('\n');
+
+    const filename = `แบบฟอร์ม_${new Date().toISOString().slice(0,10)}.pdf`;
+
+    const form = new URLSearchParams();
+    form.append('to', recipients);
+    form.append('subject', subject);
+    form.append('message', message);
+    form.append('filename', filename);
+    form.append('pdfBase64', pdfBase64);
+
+    const res = await fetch(SEND_ENDPOINT, {
+      method:'POST',
+      headers:{ 'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8' },
+      body: form.toString()
+    });
+
+    if(!res.ok){
+      const t = await res.text();
+      throw new Error(t || ('HTTP '+res.status));
+    }
+    await res.json().catch(()=>({ok:true}));
+    alert('ส่งข้อมูลสำเร็จ');
+  }catch(err){
+    console.error(err);
+    alert('ส่งอีเมลไม่สำเร็จ: '+(err?.message||err));
+  }finally{
+    setSending(false);
+  }
+}
+
     document.getElementById('confirmSend').onclick=sendAutomatic;
   </script>
 </body>
 </html>
+
