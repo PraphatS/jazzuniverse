@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>แบบฟอร์มขอใช้ประโยชน์ผลงานวิจัย – กรอก/เซ็น/พรีวิว/ส่ง</title>
 
-  <!-- Tailwind (สะดวก; ถ้า production ระยะยาว แนะนำ build) -->
+  <!-- Tailwind (สะดวก; ถ้าจะ production ระยะยาว แนะนำ build) -->
   <script src="https://cdn.tailwindcss.com"></script>
 
   <!-- pdf-lib + fontkit สำหรับฝังฟอนต์ .ttf -->
@@ -107,14 +107,22 @@
     <!-- STEP 3 -->
     <section id="step3" class="box bg-white shadow-sm hidden">
       <h2 class="text-xl font-semibold mb-2">3) ตรวจทานข้อมูล</h2>
-      <p class="mb-4 text-gray-600">ตรวจสอบข้อมูลด้านล่าง จากนั้นสามารถเปิดดู <b>ตัวอย่าง PDF</b> หรือกด <b>ยืนยันและส่งอีเมล</b></p>
+      <p class="mb-4 text-gray-600">ตรวจสอบข้อมูลด้านล่าง ด้านล่างจะแสดง <b>ตัวอย่าง PDF</b> อัตโนมัติ แล้วกด <b>ยืนยันและส่งอีเมล</b> หรือ <b>ดาวน์โหลด PDF</b></p>
       <div id="review" class="space-y-2 text-sm"></div>
+
       <div class="mt-6 flex flex-wrap gap-2 justify-between">
         <button id="back2" class="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300">ย้อนกลับ</button>
         <div class="flex gap-2">
-          <button id="previewPdf" class="px-4 py-2 rounded-lg bg-amber-600 text-white hover:bg-amber-700">แสดงตัวอย่าง PDF</button>
+          <button id="refreshPreview" class="px-4 py-2 rounded-lg bg-amber-600 text-white hover:bg-amber-700">รีเฟรชตัวอย่าง PDF</button>
+          <button id="downloadPdf" class="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700">ดาวน์โหลด PDF</button>
           <button id="confirmSend" class="px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700">ยืนยันและส่งข้อมูล</button>
         </div>
+      </div>
+
+      <!-- ตัวอย่าง PDF แบบฝังในหน้า -->
+      <div id="previewWrap" class="mt-4 hidden">
+        <div class="text-sm text-gray-600 mb-2">ตัวอย่าง PDF (พรีวิว)</div>
+        <iframe id="pdfFrame" class="w-full h-[720px] border rounded" title="PDF Preview"></iframe>
       </div>
     </section>
   </div>
@@ -133,39 +141,38 @@
     function setInvalid(el){ if(el) el.classList.add('border-red-500'); }
     function setValid(el){ if(el) el.classList.remove('border-red-500'); }
 
-   // ========= Stepper =========
-const stepEls = {
-  s1: document.getElementById('step1'),
-  s2: document.getElementById('step2'),
-  s3: document.getElementById('step3')
-};
-const dot1 = document.getElementById('step1dot');
-const dot2 = document.getElementById('step2dot');
-const dot3 = document.getElementById('step3dot');
+    // ========= Stepper =========
+    const stepEls = { s1: document.getElementById('step1'), s2: document.getElementById('step2'), s3: document.getElementById('step3') };
+    const dot1 = document.getElementById('step1dot');
+    const dot2 = document.getElementById('step2dot');
+    const dot3 = document.getElementById('step3dot');
 
-function goto(step){
-  // ซ่อนทุกสเต็ปก่อน
-  stepEls.s1.classList.add('hidden');
-  stepEls.s2.classList.add('hidden');
-  stepEls.s3.classList.add('hidden');
+    function goto(step){
+      // ซ่อนทุกสเต็ปก่อน
+      stepEls.s1.classList.add('hidden');
+      stepEls.s2.classList.add('hidden');
+      stepEls.s3.classList.add('hidden');
 
-  if (step === 1) {
-    stepEls.s1.classList.remove('hidden');
-    dot1.className = 'w-7 h-7 grid place-items-center rounded-full bg-blue-600 text-white';
-    dot2.className = 'w-7 h-7 grid place-items-center rounded-full bg-gray-300';
-    dot3.className = 'w-7 h-7 grid place-items-center rounded-full bg-gray-300';
-  } else if (step === 2) {
-    stepEls.s2.classList.remove('hidden');
-    dot1.className = 'w-7 h-7 grid place-items-center rounded-full bg-green-600 text-white';
-    dot2.className = 'w-7 h-7 grid place-items-center rounded-full bg-blue-600 text-white';
-    dot3.className = 'w-7 h-7 grid place-items-center rounded-full bg-gray-300';
-  } else if (step === 3) {
-    stepEls.s3.classList.remove('hidden');
-    dot1.className = 'w-7 h-7 grid place-items-center rounded-full bg-green-600 text-white';
-    dot2.className = 'w-7 h-7 grid place-items-center rounded-full bg-green-600 text-white';
-    dot3.className = 'w-7 h-7 grid place-items-center rounded-full bg-blue-600 text-white';
-  }
-}
+      if (step === 1) {
+        stepEls.s1.classList.remove('hidden');
+        dot1.className='w-7 h-7 grid place-items-center rounded-full bg-blue-600 text-white';
+        dot2.className='w-7 h-7 grid place-items-center rounded-full bg-gray-300';
+        dot3.className='w-7 h-7 grid place-items-center rounded-full bg-gray-300';
+      } else if (step === 2) {
+        stepEls.s2.classList.remove('hidden');
+        dot1.className='w-7 h-7 grid place-items-center rounded-full bg-green-600 text-white';
+        dot2.className='w-7 h-7 grid place-items-center rounded-full bg-blue-600 text-white';
+        dot3.className='w-7 h-7 grid place-items-center rounded-full bg-gray-300';
+      } else if (step === 3) {
+        stepEls.s3.classList.remove('hidden');
+        dot1.className='w-7 h-7 grid place-items-center rounded-full bg-green-600 text-white';
+        dot2.className='w-7 h-7 grid place-items-center rounded-full bg-green-600 text-white';
+        dot3.className='w-7 h-7 grid place-items-center rounded-full bg-blue-600 text-white';
+
+        // ✅ แสดงตัวอย่าง PDF อัตโนมัติเมื่อเข้าขั้นตอนที่ 3
+        autoPreviewPdf();
+      }
+    }
 
     // ========= SignaturePad =========
     const canvas = document.getElementById('sig-canvas');
@@ -209,7 +216,6 @@ function goto(step){
         dateThai: formatThaiDate(new Date())
       };
     }
-    function isEmail(s){ return /^\S+@\S+\.\S+$/.test(s); }
     function validateStep1(){
       const data = collectData();
       const fields = {
@@ -227,10 +233,16 @@ function goto(step){
     // ========= Review / Step buttons =========
     document.getElementById('toStep2').onclick=()=>{ if(!validateStep1()) return; goto(2); requestAnimationFrame(resizeCanvas); };
     document.getElementById('back1').onclick=()=> goto(1);
-    document.getElementById('back2').onclick=()=> goto(2);
+    document.getElementById('back2').onclick=()=>{
+      goto(2);
+      // ซ่อนพรีวิวเมื่อย้อนกลับจากขั้นตอนที่ 3
+      hidePreview();
+    };
 
     document.getElementById('toStep3').onclick=()=>{
       if(sigPad.isEmpty() && !uploadedSigDataURL){ alert('กรุณาวาดลายมือชื่อหรืออัปโหลดรูปก่อนดำเนินการต่อ'); return; }
+
+      // สรุปข้อมูลให้ผู้ใช้ตรวจทาน
       const data=collectData();
       const rows=[
         ['คำนำหน้า', data.prefix],
@@ -250,6 +262,8 @@ function goto(step){
         div.innerHTML=`<div class="font-medium">${k}</div><div class="md:col-span-2 whitespace-pre-wrap">${(v||'').toString()}</div>`;
         review.appendChild(div);
       });
+
+      // ไปขั้นตอนที่ 3 (แล้ว autoPreviewPdf จะรันเองใน goto(3))
       goto(3);
     };
 
@@ -349,7 +363,7 @@ function goto(step){
         name:     { x: 120, y: 705 },                              // “ข้าพเจ้า …”
         position: { x: 120, y: 675 },                              // “ตำแหน่ง …”
         org:      { x: 260, y: 675 },                              // “หน่วยงาน …” (ต่อท้ายบรรทัดเดียวกัน)
-        purpose:  { x: 120, yTop: 515, width: 360, lineGap: 22, yBottom: 430 }, // กล่องความประสงค์ (จำกัดขอบล่าง กันล้น)
+        purpose:  { x: 120, yTop: 515, width: 360, lineGap: 22, yBottom: 430 }, // กล่องความประสงค์
         date:     { x: 120, y: 160 },                              // “วันที่ …”
         // ลายมือชื่อ (ถ้ามีหน้า 2 จะไปหน้า 2 อัตโนมัติ)
         sign:       { x: 340, y: 200, w: 160 },
@@ -399,22 +413,66 @@ function goto(step){
       return await pdfDoc.save();
     }
 
-    // ========= Preview (จากไฟล์จริง) =========
-    document.getElementById('previewPdf').onclick=async()=>{
+    // ========= Preview (ฝังในหน้า) & Download =========
+    let currentPreviewUrl = null;
+    let currentPreviewBytes = null;
+
+    async function autoPreviewPdf(){
       try{
         const data = collectData();
         const pdfBytes = await generatePdfBytes(data);
+        currentPreviewBytes = pdfBytes;
+
         const blob = new Blob([pdfBytes], { type:'application/pdf' });
         const url = URL.createObjectURL(blob);
-        window.open(url, '_blank');
-      }catch(err){ console.error(err); alert('สร้างตัวอย่าง PDF ไม่สำเร็จ: '+err.message); }
+
+        if (currentPreviewUrl) { try { URL.revokeObjectURL(currentPreviewUrl); } catch {} }
+        currentPreviewUrl = url;
+
+        const frame = document.getElementById('pdfFrame');
+        const wrap  = document.getElementById('previewWrap');
+        frame.src   = url;
+        wrap.classList.remove('hidden');
+      }catch(err){
+        console.error(err);
+        alert('สร้างตัวอย่าง PDF ไม่สำเร็จ: '+err.message);
+      }
+    }
+
+    function hidePreview(){
+      const wrap = document.getElementById('previewWrap');
+      if (wrap) wrap.classList.add('hidden');
+      const frame = document.getElementById('pdfFrame');
+      if (frame) frame.src = 'about:blank';
+      if (currentPreviewUrl) { try { URL.revokeObjectURL(currentPreviewUrl); } catch {} }
+      currentPreviewUrl = null;
+      currentPreviewBytes = null;
+    }
+
+    document.getElementById('refreshPreview').onclick = autoPreviewPdf;
+
+    document.getElementById('downloadPdf').onclick = ()=>{
+      if (!currentPreviewBytes) { alert('ยังไม่มีไฟล์ตัวอย่าง โปรดรอสักครู่หรือกดรีเฟรชตัวอย่าง PDF'); return; }
+      const blob = new Blob([currentPreviewBytes], { type:'application/pdf' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `แบบฟอร์ม_${new Date().toISOString().slice(0,10)}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(()=>URL.revokeObjectURL(url), 1000);
     };
 
     // ========= ส่งอัตโนมัติ =========
     function setSending(isSending){ const btn=document.getElementById('confirmSend'); if(!btn) return; btn.disabled=isSending; btn.textContent=isSending?'กำลังส่ง…':'ยืนยันและส่งข้อมูล'; }
     async function buildPdfBase64(){
-      const data = collectData();
-      const pdfBytes = await generatePdfBytes(data);
+      // ใช้ตัวอย่างที่สร้างล่าสุด ถ้ามี เพื่อไม่ render รอบใหม่ซ้ำ
+      let pdfBytes = currentPreviewBytes;
+      if (!pdfBytes) {
+        const data = collectData();
+        pdfBytes = await generatePdfBytes(data);
+      }
       let binary=''; const bytes=new Uint8Array(pdfBytes);
       for(let i=0;i<bytes.length;i++){ binary += String.fromCharCode(bytes[i]); }
       return btoa(binary);
@@ -470,4 +528,3 @@ function goto(step){
   </script>
 </body>
 </html>
-
