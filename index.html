@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>แบบฟอร์มขอใช้ประโยชน์ผลงานวิจัย – กรอก/เซ็น/พรีวิว/ส่ง</title>
 
-  <!-- Tailwind CDN (สะดวก; โปรด build จริงถ้าจะ production ยาวๆ) -->
+  <!-- Tailwind CDN (ใช้งานสะดวก; ถ้าจะ production ยาว ๆ แนะนำ build) -->
   <script src="https://cdn.tailwindcss.com"></script>
 
   <!-- pdf-lib + fontkit สำหรับฝังฟอนต์ .ttf -->
@@ -43,12 +43,22 @@
       <h2 class="text-xl font-semibold mb-4">1) กรอกข้อมูลพื้นฐาน</h2>
       <div class="grid md:grid-cols-2 gap-4">
         <div>
-          <label class="block text-sm font-medium mb-1" for="firstName">ชื่อ</label>
-          <input id="firstName" class="w-full rounded-lg border px-3 py-2" placeholder="เช่น ปรภัสร์" />
+          <label class="block text-sm font-medium mb-1" for="prefix">คำนำหน้า</label>
+          <select id="prefix" class="w-full rounded-lg border px-3 py-2">
+            <option value="">— เลือก —</option>
+            <option>นาย</option>
+            <option>นาง</option>
+            <option>นางสาว</option>
+            <option>ดร.</option>
+            <option>ผศ.</option>
+            <option>รศ.</option>
+            <option>ศ.</option>
+            <option>อื่น ๆ</option>
+          </select>
         </div>
         <div>
-          <label class="block text-sm font-medium mb-1" for="lastName">สกุล</label>
-          <input id="lastName" class="w-full rounded-lg border px-3 py-2" placeholder="เช่น ศิลปกิจจานนท์" />
+          <label class="block text-sm font-medium mb-1" for="fullName">ชื่อ–สกุล</label>
+          <input id="fullName" class="w-full rounded-lg border px-3 py-2" placeholder="เช่น ปรภัสร์ ศิลปกิจจานนท์" />
         </div>
         <div>
           <label class="block text-sm font-medium mb-1" for="position">ตำแหน่ง</label>
@@ -177,8 +187,8 @@
     // ========= Data & Validate =========
     function collectData(){
       return {
-        firstName:document.getElementById('firstName').value.trim(),
-        lastName:document.getElementById('lastName').value.trim(),
+        prefix:document.getElementById('prefix').value.trim(),
+        fullName:document.getElementById('fullName').value.trim(),
         position:document.getElementById('position').value.trim(),
         org:document.getElementById('org').value.trim(),
         purpose:document.getElementById('purpose').value.trim(),
@@ -190,7 +200,7 @@
     function validateStep1(){
       const data = collectData();
       const fields = {
-        firstName:'ชื่อ', lastName:'สกุล', position:'ตำแหน่ง', org:'หน่วยงาน',
+        prefix:'คำนำหน้า', fullName:'ชื่อ–สกุล', position:'ตำแหน่ง', org:'หน่วยงาน',
         purpose:'ความประสงค์', phone:'เบอร์โทรศัพท์', email:'อีเมล'
       };
       const errors=[];
@@ -209,8 +219,8 @@
       if(sigPad.isEmpty() && !uploadedSigDataURL){ alert('กรุณาวาดลายมือชื่อหรืออัปโหลดรูปก่อนดำเนินการต่อ'); return; }
       const data=collectData();
       const rows=[
-        ['ชื่อ', data.firstName],
-        ['สกุล', data.lastName],
+        ['คำนำหน้า', data.prefix],
+        ['ชื่อ–สกุล', data.fullName],
         ['ตำแหน่ง', data.position],
         ['หน่วยงาน', data.org],
         ['วันที่', data.dateThai],
@@ -261,50 +271,60 @@
 
     // ========= generatePdfBytes: เติมข้อมูลลง assets/template.pdf =========
     async function generatePdfBytes(data){
-  const templateBytes = await fetchArrayBuffer('/assets/template.pdf');
-  const fontBytes     = await fetchArrayBuffer('/assets/THSarabunNew.ttf');
+      const templateBytes = await fetchArrayBuffer('./assets/template.pdf');
+      const fontBytes     = await fetchArrayBuffer('./assets/THSarabunNew.ttf');
 
-  // ✅ โหลดก่อน แล้วค่อย register กับ "อินสแตนซ์"
-  const pdfDoc = await PDFLib.PDFDocument.load(templateBytes, { ignoreEncryption: true });
-  pdfDoc.registerFontkit(fontkit);
+      const pdfDoc = await PDFLib.PDFDocument.load(templateBytes, { ignoreEncryption: true });
+      pdfDoc.registerFontkit(fontkit); // <- ต้อง register กับอินสแตนซ์
 
-  const thFont = await pdfDoc.embedFont(fontBytes, { subset: true });
+      const thFont = await pdfDoc.embedFont(fontBytes, { subset: true });
 
-  const pages = pdfDoc.getPages();
-  const page1 = pages[0];
-  const { width:W, height:H } = page1.getSize();
+      const pages = pdfDoc.getPages();
+      const page1 = pages[0];
+      const { width:W, height:H } = page1.getSize();
 
-  const POS = {
-      name:     { x: 120, y: 705 },   // ข้าพเจ้า ..........
-      position: { x: 120, y: 675 },   // ตำแหน่ง ..........
-      org:      { x: 260, y: 675 },   // หน่วยงาน ........
-      purpose:  { x: 120, y: 515, width: 360, lineGap: 22 }, // ความประสงค์
-      sign:     { x: 340, y: 200, w: 160 }, // ลายมือชื่อ
-      signName: { x: 360, y: 180 },   // (ชื่อกำกับลายเซ็น)
-      date:     { x: 120, y: 160 }    // วันที่
-  };
-  const FONT = { size: 16, small: 14 };
+      // === พิกัด (pt) — ปรับให้ตรงแบบฟอร์มของคุณได้ที่นี่ ===
+      const POS = {
+        // ช่องในหน้า 1
+        name:     { x: 120, y: 705 },                            // “ข้าพเจ้า …”
+        position: { x: 120, y: 675 },                            // “ตำแหน่ง …”
+        org:      { x: 260, y: 675 },                            // “หน่วยงาน …” (ต่อท้ายบรรทัดเดียวกัน)
+        purpose:  { x: 120, y: 515, width: 360, lineGap: 22 },   // ย่อหน้าความประสงค์
+        date:     { x: 120, y: 160 },                            // “วันที่ …”
+        // ลายเซ็น (ถ้าเอกสารมีหน้า 2 จะไปวางหน้า 2 อัตโนมัติ)
+        sign:     { x: 340, y: 200, w: 160 },
+        signName: { x: 360, y: 180 },                            // ชื่อกำกับลายเซ็น
+        signP2:   { x: 340, y: 180, w: 180 },                    // สำหรับหน้า 2 (ถ้ามี)
+        signNameP2:{ x: 360, y: 160 }
+      };
+      const FONT = { size: 16, small: 14 };
 
-  page1.drawText(`${data.firstName} ${data.lastName}`, { x: POS.name.x, y: POS.name.y, size: FONT.size, font: thFont });
-  page1.drawText(data.position, { x: POS.position.x, y: POS.position.y, size: FONT.size, font: thFont });
-  page1.drawText(data.org, { x: POS.org.x, y: POS.org.y, size: FONT.size, font: thFont });
-  drawWrappedText(page1, data.purpose, thFont, FONT.size, POS.purpose.x, POS.purpose.y, POS.purpose.width, POS.purpose.lineGap);
-  page1.drawText(data.dateThai, { x: POS.date.x, y: POS.date.y, size: FONT.size, font: thFont });
+      // — ชื่อเต็มสำหรับพิมพ์ลงเอกสาร
+      const displayFullName = (data.prefix ? data.prefix + ' ' : '') + data.fullName;
 
-  const sigImg = await maybeEmbedSignature(pdfDoc);
-  if(sigImg){
-    const hasPage2 = pages.length > 1;
-    const targetPage = hasPage2 ? pages[1] : page1;
-    const targetPos  = hasPage2 ? POS.signP2 : POS.sign;
-    const w = targetPos.w;
-    const h = (w / sigImg.width) * sigImg.height;
-    targetPage.drawImage(sigImg, { x: targetPos.x, y: targetPos.y, width: w, height: h });
-    targetPage.drawText(`${data.firstName} ${data.lastName}`, { x: targetPos.x + 10, y: targetPos.y - 18, size: FONT.small, font: thFont });
-  }
+      // — ข้อความหลัก
+      page1.drawText(displayFullName, { x: POS.name.x, y: POS.name.y, size: FONT.size, font: thFont });
+      page1.drawText(data.position,   { x: POS.position.x, y: POS.position.y, size: FONT.size, font: thFont });
+      page1.drawText(data.org,        { x: POS.org.x, y: POS.org.y, size: FONT.size, font: thFont });
+      drawWrappedText(page1, data.purpose, thFont, FONT.size, POS.purpose.x, POS.purpose.y, POS.purpose.width, POS.purpose.lineGap);
+      page1.drawText(data.dateThai,   { x: POS.date.x, y: POS.date.y, size: FONT.size, font: thFont });
 
-  return await pdfDoc.save();
-}
+      // — ลายมือชื่อ
+      const sigImg = await maybeEmbedSignature(pdfDoc);
+      if(sigImg){
+        const hasPage2 = pages.length > 1;
+        const tp = hasPage2 ? pages[1] : page1;
+        const p  = hasPage2 ? POS.signP2 : POS.sign;
+        const pn = hasPage2 ? POS.signNameP2 : POS.signName;
 
+        const w = p.w;
+        const h = (w / sigImg.width) * sigImg.height;
+        tp.drawImage(sigImg, { x: p.x, y: p.y, width: w, height: h });
+        tp.drawText(displayFullName, { x: pn.x, y: pn.y, size: FONT.small, font: thFont });
+      }
+
+      return await pdfDoc.save();
+    }
 
     // ========= Preview (จากไฟล์จริง) =========
     document.getElementById('previewPdf').onclick=async()=>{
@@ -338,8 +358,8 @@
           subject: 'ยืนยันการส่งแบบฟอร์มจากระบบ',
           message: [
             'ยืนยันการส่งแบบฟอร์ม',
-            `ชื่อ: ${data.firstName}`,
-            `สกุล: ${data.lastName}`,
+            `คำนำหน้า: ${data.prefix}`,
+            `ชื่อ–สกุล: ${data.fullName}`,
             `ตำแหน่ง: ${data.position}`,
             `หน่วยงาน: ${data.org}`,
             `วันที่: ${data.dateThai}`,
@@ -350,8 +370,8 @@
             `โทรศัพท์: ${data.phone}`,
             `อีเมล: ${data.email}`
           ].join('\n'),
-            filename: `แบบฟอร์ม_${new Date().toISOString().slice(0,10)}.pdf`,
-            pdfBase64
+          filename: `แบบฟอร์ม_${new Date().toISOString().slice(0,10)}.pdf`,
+          pdfBase64
         };
 
         const form=new URLSearchParams();
@@ -377,5 +397,3 @@
   </script>
 </body>
 </html>
-
-
